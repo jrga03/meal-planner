@@ -8,12 +8,19 @@
     "start": "next start"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
     "next": "9.5.3",
     "next-pwa": "3.1.5",
+    "prop-types": "^15.7.2",
     "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "react-device-detect": "^1.13.1",
+    "react-dom": "16.13.1",
+    "react-window": "^1.8.5",
+    "styled-components": "^5.2.0"
   },
   "devDependencies": {
+    "babel-plugin-styled-components": "^1.11.1",
     "eslint": "^7.10.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-prettier": "^3.1.4",
