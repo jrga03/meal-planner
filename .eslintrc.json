@@ -6,8 +6,8 @@
   "plugins": ["react"],
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:react/recommended"
   ],
   "settings": {
     "react": {
@@ -17,5 +17,14 @@
   "parserOptions": {
     "ecmaVersion": 2020,
     "sourceType": "module"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "rules": {
+        "react/jsx-curly-spacing": [2, {"when": "never"}],
+        "react/display-name": [0]
+      }
+    }
+  ]
 }
