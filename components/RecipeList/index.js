@@ -51,8 +51,6 @@ function RecipeList({ recipes }) {
     return recipes[index].id;
   }
 
-  console.log(`listHeight: ${listHeight}`, `itemWidth: ${itemWidth}`);
-
   return recipes.length === 0 ? (
     <LoaderWrapper>
       <Typography component="h1" variant="h5">
