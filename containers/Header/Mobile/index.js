@@ -9,7 +9,10 @@ import ListSubheader from "@material-ui/core/ListSubheader";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import Switch from "@material-ui/core/Switch";
 import MenuIcon from "@material-ui/icons/Menu";
+import DarkModeIcon from "@material-ui/icons/NightsStay";
 import Search from "@material-ui/icons/Search";
 
 import { DrawerContentContainer, StyledList, StyledDivider } from "../styles";
@@ -47,7 +50,7 @@ ListItemLink.propTypes = {
 /**
  * Header for mobile devices
  */
-function MobileHeader() {
+function MobileHeader({ isDark, setPaletteType }) {
   const [drawerStatus, setDrawerStatus] = useState(false);
 
   /**
@@ -58,6 +61,17 @@ function MobileHeader() {
   function handleToggleDrawer(state) {
     return function () {
       setDrawerStatus(!!state);
+    };
+  }
+
+  /**
+   * Handles toggling of dark mode
+   * @param {boolean} dark - Dark mode state
+   */
+  function handleToggle(dark) {
+    return function () {
+      const newType = dark ? "dark" : "light";
+      setPaletteType(newType);
     };
   }
 
@@ -83,20 +97,36 @@ function MobileHeader() {
         }}
       >
         <DrawerContentContainer>
-          {NAVIGATION_ITEMS.map(({ title, items }, index) => (
+          {NAVIGATION_ITEMS.map(({ title, items }) => (
             <React.Fragment key={title}>
               <StyledList component="nav" subheader={<ListSubheader>{title}</ListSubheader>}>
                 {items.map((item) => (
                   <ListItemLink key={item.primary} onClick={handleToggleDrawer(false)} {...item} />
                 ))}
               </StyledList>
-              {index !== NAVIGATION_ITEMS.length - 1 && <StyledDivider variant="middle" />}
+              <StyledDivider variant="middle" />
             </React.Fragment>
           ))}
+          <StyledList subheader={<ListSubheader>Settings</ListSubheader>}>
+            <ListItem>
+              <ListItemIcon>
+                <DarkModeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dark mode" />
+              <ListItemSecondaryAction>
+                <Switch color="primary" edge="end" checked={isDark} onChange={handleToggle(!isDark)} />
+              </ListItemSecondaryAction>
+            </ListItem>
+          </StyledList>
         </DrawerContentContainer>
       </Drawer>
     </>
   );
 }
+
+MobileHeader.propTypes = {
+  isDark: PropTypes.bool.isRequired,
+  setPaletteType: PropTypes.func.isRequired
+};
 
 export default MobileHeader;
