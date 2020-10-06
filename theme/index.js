@@ -1,4 +1,4 @@
-const theme = (prefersDarkMode = false) => ({
+const theme = (type) => ({
   breakpoints: {
     keys: ["xs", "sm", "md", "lg", "xl"],
     values: {
@@ -23,7 +23,7 @@ const theme = (prefersDarkMode = false) => ({
   },
   overrides: {},
   palette: {
-    type: prefersDarkMode ? "dark" : "light",
+    type,
     primary: {
       main: "#388e3c"
     },

@@ -35,6 +35,7 @@ export const DrawerContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: clamp(250px, 60vw, 350px);
 `;
 
 export const StyledList = styled(List)`

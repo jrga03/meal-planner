@@ -1,7 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import Head from "next/head";
 import { ThemeProvider, createMuiTheme, responsiveFontSizes } from "@material-ui/core/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import styled from "styled-components";
 
@@ -13,7 +14,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #eaeaea;
   height: 100vh;
 `;
 
@@ -43,15 +43,27 @@ const ContentWrapper = styled.div`
 
 function MyApp({ Component, pageProps }) {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const [paletteType, setPaletteType] = useState("light");
+  const isDark = paletteType === "dark";
+
+  useEffect(() => {
+    const themeType = prefersDarkMode ? "dark" : "light";
+    setPaletteType(themeType);
+  }, [prefersDarkMode]);
 
   const theme = useMemo(() => {
-    let createdTheme = createMuiTheme(muiTheme(true));
+    let createdTheme = createMuiTheme(muiTheme(paletteType));
     createdTheme = responsiveFontSizes(createdTheme);
     return createdTheme;
-  }, [prefersDarkMode]);
+  }, [paletteType]);
+
+  function handleThemeToggle(type) {
+    setPaletteType(type);
+  }
 
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Container>
         <Head>
           <link rel="manifest" href="manifest.json" />
@@ -83,7 +95,7 @@ function MyApp({ Component, pageProps }) {
           <link rel="icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
           <link rel="apple-touch-icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
         </Head>
-        <Header />
+        <Header isDark={isDark} setPaletteType={handleThemeToggle} />
         <ContentWrapper>
           <Component {...pageProps} />
         </ContentWrapper>
