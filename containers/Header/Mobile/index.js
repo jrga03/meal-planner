@@ -22,7 +22,7 @@ import { APP_NAME, NAVIGATION_ITEMS } from "../constants";
 /**
  * ListItem with Link
  */
-function ListItemLink({ Icon, primary, href }) {
+function ListItemLink({ Icon, primary, href, onClick }) {
   const router = useRouter();
   const selected = router.asPath === href;
   const color = selected ? "primary" : "inherit";
@@ -30,7 +30,7 @@ function ListItemLink({ Icon, primary, href }) {
   return (
     <li>
       <Link href={href}>
-        <ListItem button selected={selected}>
+        <ListItem button selected={selected} onClick={onClick}>
           <ListItemIcon>
             <Icon color={color} />
           </ListItemIcon>
@@ -44,7 +44,8 @@ function ListItemLink({ Icon, primary, href }) {
 ListItemLink.propTypes = {
   Icon: PropTypes.func.isRequired,
   primary: PropTypes.string.isRequired,
-  href: PropTypes.string.isRequired
+  href: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired
 };
 
 /**
