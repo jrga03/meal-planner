@@ -77,7 +77,7 @@ function MobileHeader({ isDark, setPaletteType }) {
 
   return (
     <>
-      <IconButton color="inherit" aria-label="Menu" onClick={handleToggleDrawer(true)}>
+      <IconButton edge="start" color="inherit" aria-label="Menu" onClick={handleToggleDrawer(true)}>
         <MenuIcon />
       </IconButton>
       <Typography variant="h6" noWrap>
@@ -85,7 +85,7 @@ function MobileHeader({ isDark, setPaletteType }) {
       </Typography>
       <div className="grow" />
       <Link href="/search">
-        <IconButton color="inherit" aria-label="Search">
+        <IconButton edge="end" color="inherit" aria-label="Search">
           <Search />
         </IconButton>
       </Link>
