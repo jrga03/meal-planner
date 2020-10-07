@@ -107,7 +107,7 @@ export const TagsContainer = styled.div`
 
 export const StyledCardActionArea = styled(CardActionArea)`
   position: relative;
-  min-height: 40vw;
+  min-height: clamp(0px, 40vw, 350px);
 `;
 
 export const StyledCardContent = styled(CardContent)`
