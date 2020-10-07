@@ -52,7 +52,7 @@ function AddRecipe() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const fileInputRef = useRef(null);
-  const fileCaptureRef = useRef(null);
+  // const fileCaptureRef = useRef(null);
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
@@ -64,9 +64,12 @@ function AddRecipe() {
   const handleTakePhoto = (isCapture = false) => () => {
     setDrawerOpen(false);
 
-    const ref = isCapture ? fileCaptureRef : fileInputRef;
-    if (ref && ref.current) {
-      ref.current.click();
+    // const ref = isCapture ? fileCaptureRef : fileInputRef;
+    if (fileInputRef && fileInputRef.current) {
+      if (isCapture) {
+        fileInputRef.current.capture = "";
+      }
+      fileInputRef.current.click();
     }
   };
 
@@ -93,7 +96,7 @@ function AddRecipe() {
           <Form>
             <Hidden implementation="css" xsUp>
               <input id="file-input" type="file" accept="image/png, image/jpeg" ref={fileInputRef} />
-              <input id="file-capture" type="file" accept="image/png, image/jpeg" capture ref={fileCaptureRef} />
+              {/* <input id="file-capture" type="file" accept="image/png, image/jpeg" capture ref={fileCaptureRef} /> */}
             </Hidden>
             <Card square elevation={0}>
               <StyledCardActionArea onClick={toggleDrawer(true)}>
