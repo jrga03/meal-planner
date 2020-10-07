@@ -21,6 +21,7 @@ import PhotoIcon from "@material-ui/icons/PhotoCamera";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CameraIcon from "@material-ui/icons/AddAPhoto";
 import GalleryIcon from "@material-ui/icons/PhotoLibrary";
+import { isMobile } from "react-device-detect";
 
 import { INITIAL_VALUES, PREP_TIME_OPTIONS, MAIN_INGREDIENT_OPTIONS, TAGS_OPTIONS } from "./constants";
 import {
@@ -52,9 +53,14 @@ function AddRecipe() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const fileInputRef = useRef(null);
-  // const fileCaptureRef = useRef(null);
+  const fileCaptureRef = useRef(null);
 
   const toggleDrawer = (open) => (event) => {
+    if (open && !isMobile && fileInputRef && fileInputRef.current) {
+      fileInputRef.current.click();
+      return;
+    }
+
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
       return;
     }
@@ -64,12 +70,9 @@ function AddRecipe() {
   const handleTakePhoto = (isCapture = false) => () => {
     setDrawerOpen(false);
 
-    // const ref = isCapture ? fileCaptureRef : fileInputRef;
-    if (fileInputRef && fileInputRef.current) {
-      if (isCapture) {
-        fileInputRef.current.capture = "";
-      }
-      fileInputRef.current.click();
+    const ref = isCapture ? fileCaptureRef : fileInputRef;
+    if (ref && ref.current) {
+      ref.current.click();
     }
   };
 
@@ -96,7 +99,7 @@ function AddRecipe() {
           <Form>
             <Hidden implementation="css" xsUp>
               <input id="file-input" type="file" accept="image/png, image/jpeg" ref={fileInputRef} />
-              {/* <input id="file-capture" type="file" accept="image/png, image/jpeg" capture ref={fileCaptureRef} /> */}
+              <input id="file-capture" type="file" accept="image/png, image/jpeg" capture ref={fileCaptureRef} />
             </Hidden>
             <Card square elevation={0}>
               <StyledCardActionArea onClick={toggleDrawer(true)}>
