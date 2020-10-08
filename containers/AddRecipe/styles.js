@@ -8,13 +8,6 @@ function clampHeight(theme) {
 }
 
 export const photoStyles = makeStyles((theme) => ({
-  root: {
-    position: "absolute",
-    width: `clamp(0px, 100%, ${theme.breakpoints.values.sm}px)`,
-    height: clampHeight(theme),
-    background: "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%)",
-    top: 0
-  },
   media: {
     height: clampHeight(theme)
   }
@@ -72,16 +65,17 @@ export const TwoColumns = styled.div`
 
 export const IngredientRow = styled.div`
   display: grid;
-  grid-template-columns: 5fr 5fr 10fr 10fr 2fr;
+  grid-template-columns: 5fr 5fr 10fr 10fr min-content;
   column-gap: 4px;
   margin-bottom: 6px;
 `;
 
-export const PrepNoteRow = styled.div`
+export const PrepNoteGrid = styled.div`
   margin-bottom: 6px;
   display: grid;
   grid-template-columns: auto min-content;
   grid-template-rows: auto;
+  align-items: center;
   grid-template-areas:
     "time button"
     "note button";
@@ -107,7 +101,7 @@ export const TagsContainer = styled.div`
 
 export const StyledCardActionArea = styled(CardActionArea)`
   position: relative;
-  min-height: clamp(0px, 40vw, 350px);
+  min-height: ${({ theme }) => clampHeight(theme)};
 `;
 
 export const StyledCardContent = styled(CardContent)`
@@ -120,4 +114,12 @@ export const StyledCardContent = styled(CardContent)`
   grid-template-rows: auto auto;
   row-gap: 10px;
   justify-items: center;
+`;
+
+export const PhotoOverlay = styled.div`
+  position: absolute;
+  width: ${({ theme }) => `clamp(0px, 100%, ${theme.breakpoints.values.sm}px)`};
+  height: ${({ theme }) => clampHeight(theme)};
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 70%, rgba(0, 0, 0, 0.7) 100%);
+  top: 0;
 `;

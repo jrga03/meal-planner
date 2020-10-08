@@ -5,11 +5,8 @@ import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import TextField from "@material-ui/core/TextField";
-import FilledInput from "@material-ui/core/FilledInput";
 import Divider from "@material-ui/core/Divider";
 import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
 import Chip from "@material-ui/core/Chip";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -18,39 +15,37 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Hidden from "@material-ui/core/Hidden";
 import PhotoIcon from "@material-ui/icons/PhotoCamera";
-import DeleteIcon from "@material-ui/icons/Delete";
 import CameraIcon from "@material-ui/icons/AddAPhoto";
 import GalleryIcon from "@material-ui/icons/PhotoLibrary";
 import { isMobile } from "react-device-detect";
 
-import { INITIAL_VALUES, PREP_TIME_OPTIONS, MAIN_INGREDIENT_OPTIONS, TAGS_OPTIONS } from "./constants";
+import { fileToBase64Img } from "utils/fileHelper";
+import { INITIAL_VALUES, MAIN_INGREDIENT_OPTIONS, TAGS_OPTIONS } from "containers/AddRecipe/constants";
 import {
   photoStyles,
   genericFieldStyles,
-  ingredientUnitStyles,
-  ingredientInputStyles,
   dividerStyles,
-  sectionTitleStyles,
   chipStyles,
   TextFieldsContainer,
-  TwoColumns,
-  IngredientRow,
-  PrepNoteRow,
   TagsContainer,
   StyledCardActionArea,
-  StyledCardContent
-} from "./styles";
+  StyledCardContent,
+  PhotoOverlay
+} from "containers/AddRecipe/styles";
+
+import PrepTimes from "containers/AddRecipe/PrepTimes";
+import Ingredients from "containers/AddRecipe/Ingredients";
+import PrepNotes from "containers/AddRecipe/PrepNotes";
+import Directions from "containers/AddRecipe/Directions";
 
 function AddRecipe() {
   const photoClasses = photoStyles();
   const genericFieldClasses = genericFieldStyles();
-  const ingredientUnitClasses = ingredientUnitStyles();
-  const ingredientInputClasses = ingredientInputStyles();
   const dividerClasses = dividerStyles();
-  const sectionTitleClasses = sectionTitleStyles();
   const chipClasses = chipStyles();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [recipePhoto, setRecipePhoto] = useState(null);
 
   const fileInputRef = useRef(null);
   const fileCaptureRef = useRef(null);
@@ -76,6 +71,17 @@ function AddRecipe() {
     }
   };
 
+  const handleInputChange = async (event) => {
+    const file = event?.target?.files?.[0];
+    let image = null;
+
+    if (file) {
+      image = await fileToBase64Img(file);
+    }
+
+    setRecipePhoto(image);
+  };
+
   return (
     <Container maxWidth="sm" disableGutters>
       <Drawer anchor="bottom" open={drawerOpen} onClose={toggleDrawer(false)}>
@@ -98,29 +104,42 @@ function AddRecipe() {
         {({ values }) => (
           <Form>
             <Hidden implementation="css" xsUp>
-              <input id="file-input" type="file" accept="image/png, image/jpeg" ref={fileInputRef} />
-              <input id="file-capture" type="file" accept="image/png, image/jpeg" capture ref={fileCaptureRef} />
+              <input
+                id="file-input"
+                type="file"
+                accept="image/png, image/jpeg"
+                ref={fileInputRef}
+                onChange={handleInputChange}
+              />
+              <input
+                id="file-capture"
+                type="file"
+                accept="image/png, image/jpeg"
+                capture
+                ref={fileCaptureRef}
+                onChange={handleInputChange}
+              />
             </Hidden>
             <Card square elevation={0}>
               <StyledCardActionArea onClick={toggleDrawer(true)}>
-                {values.photo && (
+                {recipePhoto && (
                   <>
                     <CardMedia
                       className={photoClasses.media}
                       component="img"
-                      image={values.photo}
+                      image={recipePhoto}
                       title="Recipe photo"
                     />
-                    <CardMedia className={photoClasses.root} />
+                    <PhotoOverlay />
                   </>
                 )}
                 <StyledCardContent>
-                  {!values.photo && (
+                  {!recipePhoto && (
                     <Avatar>
                       <PhotoIcon />
                     </Avatar>
                   )}
-                  <Typography variant="button">{values.photo ? "Change" : "Add"} Photo</Typography>
+                  <Typography variant="button">{recipePhoto ? "Change" : "Add"} Photo</Typography>
                 </StyledCardContent>
               </StyledCardActionArea>
             </Card>
@@ -164,170 +183,16 @@ function AddRecipe() {
                 )}
               </Field>
               <Divider classes={dividerClasses} />
-              <Typography classes={sectionTitleClasses} variant="h6">
-                Prep Time
-              </Typography>
-              <TwoColumns>
-                <Field name="prep-hours">
-                  {({ field }) => <TextField id={field.name} label="Hours" variant="filled" {...field} />}
-                </Field>
-                <Field name="prep-minutes">
-                  {({ field }) => <TextField id={field.name} label="Minutes" variant="filled" {...field} />}
-                </Field>
-              </TwoColumns>
-              <Typography classes={sectionTitleClasses} variant="h6">
-                Cook Time
-              </Typography>
-              <TwoColumns>
-                <Field name="cook-hours">
-                  {({ field }) => <TextField id={field.name} label="Hours" variant="filled" {...field} />}
-                </Field>
-                <Field name="cook-minutes">
-                  {({ field }) => <TextField id={field.name} label="Minutes" variant="filled" {...field} />}
-                </Field>
-              </TwoColumns>
+
+              <PrepTimes />
               <Divider classes={dividerClasses} />
-              <Typography classes={sectionTitleClasses} variant="h6">
-                Ingredients
-              </Typography>
-              <IngredientRow>
-                <Typography classes={ingredientUnitClasses} variant="body2">
-                  Amount
-                </Typography>
-                <Typography classes={ingredientUnitClasses} variant="body2">
-                  Unit
-                </Typography>
-                <Typography classes={ingredientUnitClasses} variant="body2">
-                  Ingredient
-                </Typography>
-                <Typography classes={ingredientUnitClasses} variant="body2">
-                  Note
-                </Typography>
-                <div />
-              </IngredientRow>
-              <FieldArray
-                name="ingredients"
-                render={({ push, remove }) => (
-                  <>
-                    {values.ingredients.length > 0 &&
-                      values.ingredients.map((ingredient, index) => (
-                        <IngredientRow key={index}>
-                          <Field name={`ingredients.${index}.amount`}>
-                            {({ field }) => (
-                              <FilledInput id={field.name} classes={ingredientInputClasses} margin="none" {...field} />
-                            )}
-                          </Field>
-                          <Field name={`ingredients.${index}.unit`}>
-                            {({ field }) => (
-                              <FilledInput id={field.name} classes={ingredientInputClasses} margin="none" {...field} />
-                            )}
-                          </Field>
-                          <Field name={`ingredients.${index}.ingredient`}>
-                            {({ field }) => (
-                              <FilledInput id={field.name} classes={ingredientInputClasses} margin="none" {...field} />
-                            )}
-                          </Field>
-                          <Field name={`ingredients.${index}.note`}>
-                            {({ field }) => (
-                              <FilledInput id={field.name} classes={ingredientInputClasses} margin="none" {...field} />
-                            )}
-                          </Field>
-                          <IconButton size="small" disableRipple onClick={() => remove(index)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </IngredientRow>
-                      ))}
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      onClick={() =>
-                        push({
-                          amount: "",
-                          unit: "",
-                          ingredient: "",
-                          note: ""
-                        })
-                      }
-                    >
-                      Add ingredient
-                    </Button>
-                  </>
-                )}
-              />
+
+              <Ingredients />
               <Divider classes={dividerClasses} />
-              <Typography classes={sectionTitleClasses} variant="h6">
-                Prep Notes
-              </Typography>
-              <FieldArray
-                name="prep-notes"
-                render={({ push, remove }) => (
-                  <>
-                    {values["prep-notes"].length > 0 &&
-                      values["prep-notes"].map((prepNote, index) => (
-                        <PrepNoteRow key={index}>
-                          <Field name={`["prep-notes"].${index}.time`}>
-                            {({ field }) => (
-                              <TextField
-                                id={field.name}
-                                classes={genericFieldClasses}
-                                className="prep-note__time"
-                                label="Start preparing"
-                                select
-                                SelectProps={{ native: true }}
-                                variant="filled"
-                                {...field}
-                              >
-                                {PREP_TIME_OPTIONS.map(({ value, label }) => (
-                                  <option key={value} value={value}>
-                                    {label}
-                                  </option>
-                                ))}
-                              </TextField>
-                            )}
-                          </Field>
-                          <Field name={`["prep-notes"].${index}.note`}>
-                            {({ field }) => (
-                              <TextField
-                                id={field.name}
-                                classes={genericFieldClasses}
-                                className="prep-note__note"
-                                label="Prep note"
-                                multiline
-                                rows={2}
-                                rowsMax={2}
-                                variant="filled"
-                                {...field}
-                              />
-                            )}
-                          </Field>
-                          <IconButton
-                            className="prep-note__button"
-                            size="small"
-                            disableRipple
-                            onClick={() => remove(index)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </PrepNoteRow>
-                      ))}
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      onClick={() =>
-                        push({
-                          time: 1,
-                          note: ""
-                        })
-                      }
-                    >
-                      Add Prep Note
-                    </Button>
-                  </>
-                )}
-              />
+
+              <PrepNotes />
               <Divider classes={dividerClasses} />
+
               <Field name="main-ingredient">
                 {({ field }) => (
                   <TextField
@@ -376,40 +241,24 @@ function AddRecipe() {
                         ))}
                       </TextField>
                       <TagsContainer>
-                        {values.tags.length > 0 &&
-                          values.tags.map((tag, index) => (
-                            <Chip
-                              key={tag}
-                              classes={chipClasses}
-                              label={tag}
-                              onDelete={handleDelete(index)}
-                              color="secondary"
-                              size="small"
-                            />
-                          ))}
+                        {values.tags?.map((tag, index) => (
+                          <Chip
+                            key={tag}
+                            classes={chipClasses}
+                            label={tag}
+                            onDelete={handleDelete(index)}
+                            color="secondary"
+                            size="small"
+                          />
+                        ))}
                       </TagsContainer>
                     </>
                   );
                 }}
               />
               <Divider classes={dividerClasses} />
-              <Typography classes={sectionTitleClasses} variant="h6">
-                Directions
-              </Typography>
-              <Field name="directions">
-                {({ field }) => (
-                  <TextField
-                    classes={genericFieldClasses}
-                    id={field.name}
-                    label="Directions"
-                    fullWidth
-                    multiline
-                    rows={6}
-                    variant="filled"
-                    {...field}
-                  />
-                )}
-              </Field>
+
+              <Directions />
             </TextFieldsContainer>
           </Form>
         )}
