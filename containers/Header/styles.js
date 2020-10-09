@@ -9,10 +9,6 @@ export const StyledAppBar = styled(AppBar)`
 `;
 
 export const StyledToolbar = styled(Toolbar)`
-  max-width: 960px;
-  width: 100vw;
-  padding-right: 5px;
-  padding-left: 5px;
   justify-content: space-between;
 
   .MuiButtonBase-root {
