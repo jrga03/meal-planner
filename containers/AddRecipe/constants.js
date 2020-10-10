@@ -1,5 +1,4 @@
 export const INITIAL_VALUES = {
-  // photo: "https://res.cloudinary.com/what-to-cook/image/upload/v1579443433/recipes/dxvaojntpnmiromcesxf.png",
   photo: "",
   title: "",
   source: "",
