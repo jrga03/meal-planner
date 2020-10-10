@@ -1,27 +1,20 @@
 import React from "react";
 import { Field } from "formik";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import { genericFieldStyles, sectionTitleStyles } from "containers/AddRecipe/styles";
+import { SectionTitle, GenericTextField } from "containers/AddRecipe/styles";
 
 function Directions() {
-  const genericFieldClasses = genericFieldStyles();
-  const sectionTitleClasses = sectionTitleStyles();
-
   return (
     <>
-      <Typography classes={sectionTitleClasses} variant="h6">
-        Directions
-      </Typography>
+      <SectionTitle variant="h6">Directions</SectionTitle>
       <Field name="directions">
         {({ field }) => (
-          <TextField
-            classes={genericFieldClasses}
+          <GenericTextField
             id={field.name}
             label="Directions"
             fullWidth
             multiline
             rows={6}
+            rowsMax={20}
             variant="filled"
             {...field}
           />

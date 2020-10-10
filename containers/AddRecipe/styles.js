@@ -1,55 +1,16 @@
 import styled from "styled-components";
-import { makeStyles } from "@material-ui/core/styles";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
+import TextField from "@material-ui/core/TextField";
+import FilledInput from "@material-ui/core/FilledInput";
+import Typography from "@material-ui/core/Typography";
+import Divider from "@material-ui/core/Divider";
+import Chip from "@material-ui/core/Chip";
 
 function clampHeight(theme) {
   return `clamp(0px, ${100 * (9 / 16)}vw, ${theme.breakpoints.values.sm * (9 / 16)}px)`;
 }
-
-export const photoStyles = makeStyles((theme) => ({
-  media: {
-    height: clampHeight(theme)
-  }
-}));
-
-export const genericFieldStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(1)
-  }
-}));
-
-export const ingredientUnitStyles = makeStyles(() => ({
-  root: {
-    fontSize: "0.75rem"
-  }
-}));
-
-export const ingredientInputStyles = makeStyles(() => ({
-  input: {
-    padding: "4px",
-    fontSize: "0.75rem"
-  }
-}));
-
-export const dividerStyles = makeStyles(() => ({
-  root: {
-    margin: "16px 0"
-  }
-}));
-
-export const sectionTitleStyles = makeStyles(() => ({
-  root: {
-    margin: "12px 0 4px"
-  }
-}));
-
-export const chipStyles = makeStyles(() => ({
-  root: {
-    marginRight: "4px",
-    marginBottom: "4px"
-  }
-}));
 
 export const TextFieldsContainer = styled.main`
   width: 100%;
@@ -122,4 +83,36 @@ export const PhotoOverlay = styled.div`
   height: ${({ theme }) => clampHeight(theme)};
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 70%, rgba(0, 0, 0, 0.7) 100%);
   top: 0;
+`;
+
+export const SectionTitle = styled(Typography)`
+  margin: 12px 0 4px;
+`;
+
+const ingredientFontSize = "0.75rem";
+
+export const IngredientUnitTitle = styled(Typography)`
+  font-size: ${ingredientFontSize};
+`;
+
+export const IngredientInput = styled(FilledInput)`
+  padding: 4px;
+  font-size: ${ingredientFontSize};
+`;
+
+export const StyledDivider = styled(Divider)`
+  margin: 16px 0;
+`;
+
+export const GenericTextField = styled(TextField)`
+  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
+`;
+
+export const RecipePhoto = styled(CardMedia)`
+  height: ${({ theme }) => clampHeight(theme)};
+`;
+
+export const Tag = styled(Chip)`
+  margin-right: 4px;
+  margin-bottom: 4px;
 `;

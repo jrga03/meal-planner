@@ -1,18 +1,13 @@
 import React from "react";
 import { Field } from "formik";
 import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
 
-import { sectionTitleStyles, TwoColumns } from "containers/AddRecipe/styles";
+import { TwoColumns, SectionTitle } from "containers/AddRecipe/styles";
 
 function PrepTimes() {
-  const sectionTitleClasses = sectionTitleStyles();
-
   return (
     <>
-      <Typography classes={sectionTitleClasses} variant="h6">
-        Prep Time
-      </Typography>
+      <SectionTitle variant="h6">Prep Time</SectionTitle>
       <TwoColumns>
         <Field name="prep-hours">
           {({ field }) => <TextField id={field.name} label="Hours" variant="filled" {...field} />}
@@ -21,9 +16,7 @@ function PrepTimes() {
           {({ field }) => <TextField id={field.name} label="Minutes" variant="filled" {...field} />}
         </Field>
       </TwoColumns>
-      <Typography classes={sectionTitleClasses} variant="h6">
-        Cook Time
-      </Typography>
+      <SectionTitle variant="h6">Cook Time</SectionTitle>
       <TwoColumns>
         <Field name="cook-hours">
           {({ field }) => <TextField id={field.name} label="Hours" variant="filled" {...field} />}
