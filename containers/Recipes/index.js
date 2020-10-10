@@ -1,4 +1,5 @@
 import React from "react";
+import WithHeader from "containers/Header/withHeader";
 import RecipeList from "components/RecipeList";
 
 import { Wrapper } from "./styles";
@@ -78,9 +79,13 @@ function Recipes() {
   ];
 
   return (
-    <Wrapper>
-      <RecipeList recipes={recipes} />
-    </Wrapper>
+    <WithHeader
+      content={
+        <Wrapper>
+          <RecipeList recipes={recipes} />
+        </Wrapper>
+      }
+    />
   );
 }
 

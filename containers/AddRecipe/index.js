@@ -1,13 +1,12 @@
 import React, { useState, useRef } from "react";
-import { Formik, Form, Field, FieldArray } from "formik";
+import { useRouter } from "next/router";
+import { Formik, Form, Field, FieldArray, useFormikContext } from "formik";
 import Container from "@material-ui/core/Container";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
-import CardMedia from "@material-ui/core/CardMedia";
-import TextField from "@material-ui/core/TextField";
-import Divider from "@material-ui/core/Divider";
 import Typography from "@material-ui/core/Typography";
-import Chip from "@material-ui/core/Chip";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -17,38 +16,41 @@ import Hidden from "@material-ui/core/Hidden";
 import PhotoIcon from "@material-ui/icons/PhotoCamera";
 import CameraIcon from "@material-ui/icons/AddAPhoto";
 import GalleryIcon from "@material-ui/icons/PhotoLibrary";
-import { isMobile } from "react-device-detect";
+import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
+import { isMobileOnly, isMobile, isIOS } from "react-device-detect";
 
 import { fileToBase64Img } from "utils/fileHelper";
+import WithHeader from "containers/Header/withHeader";
 import { INITIAL_VALUES, MAIN_INGREDIENT_OPTIONS, TAGS_OPTIONS } from "containers/AddRecipe/constants";
 import {
-  photoStyles,
-  genericFieldStyles,
-  dividerStyles,
-  chipStyles,
   TextFieldsContainer,
   TagsContainer,
   StyledCardActionArea,
   StyledCardContent,
-  PhotoOverlay
+  PhotoOverlay,
+  StyledDivider,
+  GenericTextField,
+  RecipePhoto,
+  Tag
 } from "containers/AddRecipe/styles";
-
 import PrepTimes from "containers/AddRecipe/PrepTimes";
 import Ingredients from "containers/AddRecipe/Ingredients";
 import PrepNotes from "containers/AddRecipe/PrepNotes";
 import Directions from "containers/AddRecipe/Directions";
 
-function AddRecipe() {
-  const photoClasses = photoStyles();
-  const genericFieldClasses = genericFieldStyles();
-  const dividerClasses = dividerStyles();
-  const chipClasses = chipStyles();
+import { usePreventRouteChangeIf } from "utils/hooks";
 
+function FormikContent() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [recipePhoto, setRecipePhoto] = useState(null);
 
   const fileInputRef = useRef(null);
   const fileCaptureRef = useRef(null);
+
+  const router = useRouter();
+  const { values, submitForm, dirty } = useFormikContext();
+  usePreventRouteChangeIf(dirty, () => alert("form is dirty")); // TODO: Maybe check for a custom status
 
   const toggleDrawer = (open) => (event) => {
     if (open && !isMobile && fileInputRef && fileInputRef.current) {
@@ -82,26 +84,50 @@ function AddRecipe() {
     setRecipePhoto(image);
   };
 
+  const handleBack = () => {
+    if (dirty) {
+      // TODO: Show confirm
+      alert("Form is dirty");
+    } else {
+      router.back("/");
+    }
+  };
+
+  const handleSave = () => submitForm();
+
   return (
-    <Container maxWidth="sm" disableGutters>
-      <Drawer anchor="bottom" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <List>
-          <ListItem button onClick={handleTakePhoto(true)}>
-            <ListItemIcon>
-              <CameraIcon />
-            </ListItemIcon>
-            <ListItemText primary="Take photo" />
-          </ListItem>
-          <ListItem button onClick={handleTakePhoto()}>
-            <ListItemIcon>
-              <GalleryIcon />
-            </ListItemIcon>
-            <ListItemText primary="Choose existing photo" />
-          </ListItem>
-        </List>
-      </Drawer>
-      <Formik initialValues={INITIAL_VALUES}>
-        {({ values }) => (
+    <WithHeader
+      HeaderProps={{
+        title: "Add Recipe",
+        startNode: (
+          <IconButton edge="start" color="inherit" aria-label="Menu" onClick={handleBack}>
+            {isIOS ? <ArrowBackIosIcon /> : <ArrowBackIcon />}
+          </IconButton>
+        ),
+        endNode: (
+          <Button color="secondary" variant="contained" disableElevation size="small" onClick={handleSave}>
+            Save
+          </Button>
+        )
+      }}
+      content={
+        <Container maxWidth="sm" disableGutters>
+          <Drawer anchor="bottom" open={drawerOpen} onClose={toggleDrawer(false)}>
+            <List>
+              <ListItem button onClick={handleTakePhoto(true)}>
+                <ListItemIcon>
+                  <CameraIcon />
+                </ListItemIcon>
+                <ListItemText primary="Take photo" />
+              </ListItem>
+              <ListItem button onClick={handleTakePhoto()}>
+                <ListItemIcon>
+                  <GalleryIcon />
+                </ListItemIcon>
+                <ListItemText primary="Choose existing photo" />
+              </ListItem>
+            </List>
+          </Drawer>
           <Form>
             <Hidden implementation="css" xsUp>
               <input
@@ -124,12 +150,7 @@ function AddRecipe() {
               <StyledCardActionArea onClick={toggleDrawer(true)}>
                 {recipePhoto && (
                   <>
-                    <CardMedia
-                      className={photoClasses.media}
-                      component="img"
-                      image={recipePhoto}
-                      title="Recipe photo"
-                    />
+                    <RecipePhoto component="img" image={recipePhoto} title="Recipe photo" />
                     <PhotoOverlay />
                   </>
                 )}
@@ -146,32 +167,17 @@ function AddRecipe() {
             <TextFieldsContainer>
               <Field name="title">
                 {({ field }) => (
-                  <TextField
-                    classes={genericFieldClasses}
-                    id={field.name}
-                    label="Title"
-                    fullWidth
-                    variant="filled"
-                    {...field}
-                  />
+                  <GenericTextField id={field.name} label="Title" fullWidth variant="filled" {...field} />
                 )}
               </Field>
               <Field name="source">
                 {({ field }) => (
-                  <TextField
-                    classes={genericFieldClasses}
-                    id={field.name}
-                    label="Source"
-                    fullWidth
-                    variant="filled"
-                    {...field}
-                  />
+                  <GenericTextField id={field.name} label="Source" fullWidth variant="filled" {...field} />
                 )}
               </Field>
               <Field name="description">
                 {({ field }) => (
-                  <TextField
-                    classes={genericFieldClasses}
+                  <GenericTextField
                     id={field.name}
                     label="Description"
                     fullWidth
@@ -182,22 +188,21 @@ function AddRecipe() {
                   />
                 )}
               </Field>
-              <Divider classes={dividerClasses} />
+              <StyledDivider />
 
               <PrepTimes />
-              <Divider classes={dividerClasses} />
+              <StyledDivider />
 
               <Ingredients />
-              <Divider classes={dividerClasses} />
+              <StyledDivider />
 
               <PrepNotes />
-              <Divider classes={dividerClasses} />
+              <StyledDivider />
 
               <Field name="main-ingredient">
                 {({ field }) => (
-                  <TextField
+                  <GenericTextField
                     id={field.name}
-                    classes={genericFieldClasses}
                     label="Main Ingredient"
                     fullWidth
                     select
@@ -211,7 +216,7 @@ function AddRecipe() {
                         {label}
                       </option>
                     ))}
-                  </TextField>
+                  </GenericTextField>
                 )}
               </Field>
               <FieldArray
@@ -222,9 +227,8 @@ function AddRecipe() {
 
                   return (
                     <>
-                      <TextField
+                      <GenericTextField
                         id="tag-selector"
-                        classes={genericFieldClasses}
                         label="Tags"
                         fullWidth
                         select
@@ -239,31 +243,45 @@ function AddRecipe() {
                             {label}
                           </option>
                         ))}
-                      </TextField>
+                      </GenericTextField>
                       <TagsContainer>
                         {values.tags?.map((tag, index) => (
-                          <Chip
-                            key={tag}
-                            classes={chipClasses}
-                            label={tag}
-                            onDelete={handleDelete(index)}
-                            color="secondary"
-                            size="small"
-                          />
+                          <Tag key={tag} label={tag} onDelete={handleDelete(index)} color="secondary" size="small" />
                         ))}
                       </TagsContainer>
                     </>
                   );
                 }}
               />
-              <Divider classes={dividerClasses} />
+              <StyledDivider />
 
               <Directions />
+
+              {!isMobileOnly && (
+                <>
+                  <StyledDivider />
+                  <Button color="primary" variant="contained" size="large" onClick={submitForm} fullWidth>
+                    Save Recipe
+                  </Button>
+                </>
+              )}
             </TextFieldsContainer>
           </Form>
-        )}
-      </Formik>
-    </Container>
+        </Container>
+      }
+    />
+  );
+}
+
+function AddRecipe() {
+  const handleSubmit = (values) => {
+    console.log(values); // TODO:
+  };
+
+  return (
+    <Formik initialValues={INITIAL_VALUES} onSubmit={handleSubmit}>
+      {() => <FormikContent />}
+    </Formik>
   );
 }
 
