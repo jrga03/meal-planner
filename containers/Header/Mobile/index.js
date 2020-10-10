@@ -17,7 +17,7 @@ import Search from "@material-ui/icons/Search";
 
 import { DrawerContentContainer, StyledList, StyledDivider } from "../styles";
 
-import { APP_NAME, NAVIGATION_ITEMS } from "../constants";
+import { NAVIGATION_ITEMS } from "../constants";
 
 /**
  * ListItem with Link
@@ -48,11 +48,34 @@ ListItemLink.propTypes = {
   onClick: PropTypes.func.isRequired
 };
 
+function CustomHeader({ title, startNode, endNode }) {
+  return (
+    <>
+      {startNode}
+      <Typography variant="h6" noWrap>
+        {title}
+      </Typography>
+      <div className="grow" />
+      {endNode}
+    </>
+  );
+}
+
+CustomHeader.propTypes = {
+  title: PropTypes.string,
+  startNode: PropTypes.node,
+  endNode: PropTypes.node
+};
+
 /**
  * Header for mobile devices
  */
-function MobileHeader({ isDark, setPaletteType }) {
+function MobileHeader({ isDark, setPaletteType, title, startNode, endNode }) {
   const [drawerStatus, setDrawerStatus] = useState(false);
+
+  if (startNode || endNode) {
+    return <CustomHeader title={title} startNode={startNode} endNode={endNode} />;
+  }
 
   /**
    * Handles drawer toggle
@@ -82,7 +105,7 @@ function MobileHeader({ isDark, setPaletteType }) {
         <MenuIcon />
       </IconButton>
       <Typography variant="h6" noWrap>
-        {APP_NAME}
+        {title}
       </Typography>
       <div className="grow" />
       <Link href="/search">
@@ -127,7 +150,15 @@ function MobileHeader({ isDark, setPaletteType }) {
 
 MobileHeader.propTypes = {
   isDark: PropTypes.bool.isRequired,
-  setPaletteType: PropTypes.func.isRequired
+  setPaletteType: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  startNode: PropTypes.node,
+  endNode: PropTypes.node
+};
+
+MobileHeader.defaultProps = {
+  startNode: undefined,
+  endNode: undefined
 };
 
 export default MobileHeader;

@@ -41,3 +41,20 @@ export const StyledList = styled(List)`
 export const StyledDivider = styled(Divider)`
   align-self: stretch;
 `;
+
+export const ContentWrapper = styled.div`
+  flex-grow: 1;
+  width: 100%;
+  height: calc(100% - 56px);
+  padding-top: 56px;
+
+  @media screen and (orientation: landscape) {
+    height: calc(100% - 48px);
+    padding-top: 48px;
+  }
+
+  @media screen and (min-width: 600px) {
+    height: calc(100% - 64px);
+    padding-top: 64px;
+  }
+`;
