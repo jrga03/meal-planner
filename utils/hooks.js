@@ -6,19 +6,21 @@ import { useRouter } from "next/router";
  * @returns {object} Window width and height
  */
 export function useWindowSize() {
-  const isClient = typeof window === "object";
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
-  const handleResize = () => {
-    setWidth(window.innerWidth);
-    setHeight(window.innerHeight);
-  };
 
-  useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isClient]);
+  if (typeof window !== "undefined") {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+      setHeight(window.innerHeight);
+    };
+
+    useEffect(() => {
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+  }
 
   return {
     height,
