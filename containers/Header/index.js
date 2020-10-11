@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { isMobileOnly } from "react-device-detect";
 import Container from "@material-ui/core/Container";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import { StyledAppBar, StyledToolbar } from "containers/Header/styles";
 import MobileHeader from "containers/Header/Mobile";
@@ -9,19 +10,22 @@ import DesktopHeader from "containers/Header/Desktop";
 import { APP_NAME } from "containers/Header/constants";
 
 import { PaletteContext } from "pages/_app";
+import { useFetchUser } from "utils/user";
 
 /**
  * Header componnent
  */
 function Header(props) {
   const { isDark, setPaletteType } = useContext(PaletteContext);
-  const HeaderComponent = isMobileOnly ? MobileHeader : DesktopHeader;
+  const isSmall = useMediaQuery("(max-width:800px)");
+  const HeaderComponent = isMobileOnly || isSmall ? MobileHeader : DesktopHeader;
+  const fetchedUser = useFetchUser();
 
   return (
     <StyledAppBar position="fixed" component="nav">
       <Container maxWidth="md">
         <StyledToolbar disableGutters>
-          <HeaderComponent isDark={isDark} setPaletteType={setPaletteType} {...props} />
+          <HeaderComponent isDark={isDark} setPaletteType={setPaletteType} auth={fetchedUser} {...props} />
         </StyledToolbar>
       </Container>
     </StyledAppBar>

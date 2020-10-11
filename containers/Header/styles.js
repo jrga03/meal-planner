@@ -14,10 +14,6 @@ export const StyledToolbar = styled(Toolbar)`
   .MuiButtonBase-root {
     color: #fff;
   }
-
-  .grow {
-    flex-grow: 1;
-  }
 `;
 
 export const Container = styled.div`
@@ -32,6 +28,7 @@ export const DrawerContentContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   width: clamp(250px, 60vw, 350px);
+  height: 100%;
 `;
 
 export const StyledList = styled(List)`
@@ -57,4 +54,19 @@ export const ContentWrapper = styled.div`
     height: calc(100% - 64px);
     padding-top: 64px;
   }
+`;
+
+export const SpacerGrow = styled.div`
+  flex-grow: 1;
+`;
+
+export const Spacer = styled.div`
+  width: ${({ theme, $amount }) => theme.spacing($amount || 1)}px;
+`;
+
+export const ProfileContainer = styled.div`
+  display: grid;
+  grid-template-columns: 150px min-content;
+  column-gap: ${({ theme }) => theme.spacing(1)}px;
+  align-items: center;
 `;

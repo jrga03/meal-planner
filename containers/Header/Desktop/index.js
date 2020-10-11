@@ -6,19 +6,23 @@ import { makeStyles } from "@material-ui/core/styles";
 import { grey } from "@material-ui/core/colors";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import Popover from "@material-ui/core/Popover";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
+import Avatar from "@material-ui/core/Avatar";
 import OutdoorGrillIcon from "@material-ui/icons/OutdoorGrill";
 import TodayIcon from "@material-ui/icons/Today";
-import PopupState, { bindTrigger, bindPopover } from "material-ui-popup-state";
+import Skeleton from "@material-ui/lab/Skeleton";
+import PopupState, { bindPopover, bindHover } from "material-ui-popup-state";
+import Popover from "material-ui-popup-state/HoverPopover";
 
-import { Container } from "../styles";
+import { Container, Spacer, SpacerGrow, ProfileContainer } from "containers/Header/styles";
 
-import { APP_NAME, NAVIGATION_ITEMS } from "../constants";
+import { APP_NAME, NAVIGATION_ITEMS } from "containers/Header/constants";
+
+import createLoginUrl from "utils/urlHelper";
 
 const toggleStyles = makeStyles(() => ({
   switchBase: {
@@ -37,7 +41,7 @@ const toggleStyles = makeStyles(() => ({
 /**
  * Header for desktop
  */
-function DesktopHeader({ isDark, setPaletteType }) {
+function DesktopHeader({ auth, isDark, setPaletteType }) {
   const toggleClasses = toggleStyles();
   const router = useRouter();
   const isSelected = (href) => router.asPath === href;
@@ -58,6 +62,8 @@ function DesktopHeader({ isDark, setPaletteType }) {
     };
   }
 
+  const handleLogout = () => router.push("/api/logout");
+
   return (
     <>
       <Typography variant="h6" noWrap>
@@ -73,7 +79,7 @@ function DesktopHeader({ isDark, setPaletteType }) {
                   size="large"
                   color="primary"
                   startIcon={buttonIcons[title]}
-                  {...bindTrigger(popupState)}
+                  {...bindHover(popupState)}
                 >
                   {title}
                 </Button>
@@ -105,19 +111,65 @@ function DesktopHeader({ isDark, setPaletteType }) {
             )}
           </PopupState>
         ))}
+        <Spacer $amount={4} />
+        <FormControlLabel
+          control={<Switch classes={toggleClasses} checked={isDark} onChange={handleToggle(!isDark)} name="isDark" />}
+          label="Dark"
+          labelPlacement="end"
+        />
       </Container>
-      <FormControlLabel
-        control={<Switch classes={toggleClasses} checked={isDark} onChange={handleToggle(!isDark)} name="isDark" />}
-        label="Dark mode"
-        labelPlacement="start"
-      />
+      <SpacerGrow />
+      {auth.loading ? (
+        <>
+          <Skeleton variant="rect" width={100} style={{ marginRight: "8px" }} />
+          <Skeleton variant="circle" width={40} height={40} />
+        </>
+      ) : auth.user ? (
+        <PopupState variant="popover" popupId="profile">
+          {(popupState) => (
+            <>
+              <ProfileContainer {...bindHover(popupState)}>
+                <Typography noWrap>{auth.user.name}</Typography>
+                <Avatar alt={auth.user.name} src={auth.user.picture} />
+              </ProfileContainer>
+              <Popover
+                {...bindPopover(popupState)}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center"
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left"
+                }}
+              >
+                <List>
+                  <ListItem button onClick={handleLogout}>
+                    Logout
+                  </ListItem>
+                </List>
+              </Popover>
+            </>
+          )}
+        </PopupState>
+      ) : (
+        <Button variant="contained" href={createLoginUrl(router.pathname)}>
+          <Typography color="textPrimary" variant="button">
+            Login
+          </Typography>
+        </Button>
+      )}
     </>
   );
 }
 
 DesktopHeader.propTypes = {
   isDark: PropTypes.bool.isRequired,
-  setPaletteType: PropTypes.func.isRequired
+  setPaletteType: PropTypes.func.isRequired,
+  auth: PropTypes.shape({
+    user: PropTypes.object,
+    loading: PropTypes.bool
+  }).isRequired
 };
 
 export default DesktopHeader;

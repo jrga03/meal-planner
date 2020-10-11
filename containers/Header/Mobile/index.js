@@ -10,14 +10,19 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Switch from "@material-ui/core/Switch";
+import Button from "@material-ui/core/Button";
+import Avatar from "@material-ui/core/Avatar";
+import Skeleton from "@material-ui/lab/Skeleton";
 import MenuIcon from "@material-ui/icons/Menu";
 import DarkModeIcon from "@material-ui/icons/NightsStay";
 import Search from "@material-ui/icons/Search";
 
-import { DrawerContentContainer, StyledList, StyledDivider } from "../styles";
+import { DrawerContentContainer, StyledList, StyledDivider, SpacerGrow } from "containers/Header/styles";
+import { NAVIGATION_ITEMS } from "containers/Header/constants";
 
-import { NAVIGATION_ITEMS } from "../constants";
+import createLoginUrl from "utils/urlHelper";
 
 /**
  * ListItem with Link
@@ -55,7 +60,7 @@ function CustomHeader({ title, startNode, endNode }) {
       <Typography variant="h6" noWrap>
         {title}
       </Typography>
-      <div className="grow" />
+      <SpacerGrow />
       {endNode}
     </>
   );
@@ -70,8 +75,10 @@ CustomHeader.propTypes = {
 /**
  * Header for mobile devices
  */
-function MobileHeader({ isDark, setPaletteType, title, startNode, endNode }) {
+function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode }) {
+  const router = useRouter();
   const [drawerStatus, setDrawerStatus] = useState(false);
+  console.log("Header", auth.user);
 
   if (startNode || endNode) {
     return <CustomHeader title={title} startNode={startNode} endNode={endNode} />;
@@ -107,7 +114,7 @@ function MobileHeader({ isDark, setPaletteType, title, startNode, endNode }) {
       <Typography variant="h6" noWrap>
         {title}
       </Typography>
-      <div className="grow" />
+      <SpacerGrow />
       <Link href="/search">
         <IconButton edge="end" color="inherit" aria-label="Search">
           <Search />
@@ -121,6 +128,28 @@ function MobileHeader({ isDark, setPaletteType, title, startNode, endNode }) {
         }}
       >
         <DrawerContentContainer>
+          {auth.user && (
+            <StyledList>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar alt={auth.user.name} src={auth.user.picture} />
+                </ListItemAvatar>
+                <ListItemText primary={auth.user.name} primaryTypographyProps={{ noWrap: true }} />
+              </ListItem>
+            </StyledList>
+          )}
+          {auth.loading && (
+            <StyledList>
+              <ListItem>
+                <ListItemAvatar>
+                  <Skeleton variant="circle" width={40} height={40} />
+                </ListItemAvatar>
+                <ListItemText>
+                  <Skeleton width="100%" height="24px" />
+                </ListItemText>
+              </ListItem>
+            </StyledList>
+          )}
           {NAVIGATION_ITEMS.map(({ title, items }) => (
             <React.Fragment key={title}>
               <StyledList component="nav" subheader={<ListSubheader>{title}</ListSubheader>}>
@@ -142,6 +171,24 @@ function MobileHeader({ isDark, setPaletteType, title, startNode, endNode }) {
               </ListItemSecondaryAction>
             </ListItem>
           </StyledList>
+          <SpacerGrow />
+          <StyledList>
+            <ListItem>
+              {auth.loading ? (
+                <Skeleton width="100%" variant="rect">
+                  <Button>Loading...</Button>
+                </Skeleton>
+              ) : auth.user ? (
+                <Button fullWidth href="/api/logout">
+                  Logout
+                </Button>
+              ) : (
+                <Button fullWidth variant="contained" href={createLoginUrl(router.pathname)}>
+                  Login
+                </Button>
+              )}
+            </ListItem>
+          </StyledList>
         </DrawerContentContainer>
       </Drawer>
     </>
@@ -153,7 +200,11 @@ MobileHeader.propTypes = {
   setPaletteType: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   startNode: PropTypes.node,
-  endNode: PropTypes.node
+  endNode: PropTypes.node,
+  auth: PropTypes.shape({
+    user: PropTypes.object,
+    loading: PropTypes.bool
+  }).isRequired
 };
 
 MobileHeader.defaultProps = {
