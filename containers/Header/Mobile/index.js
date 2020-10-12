@@ -134,7 +134,10 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
                 <ListItemAvatar>
                   <Avatar alt={auth.user.name} src={auth.user.picture} />
                 </ListItemAvatar>
-                <ListItemText primary={auth.user.name} primaryTypographyProps={{ noWrap: true }} />
+                <ListItemText
+                  primary={auth.user.given_name || auth.user.name}
+                  primaryTypographyProps={{ noWrap: true }}
+                />
               </ListItem>
             </StyledList>
           )}

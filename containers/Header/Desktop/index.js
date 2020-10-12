@@ -129,7 +129,9 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
           {(popupState) => (
             <>
               <ProfileContainer {...bindHover(popupState)}>
-                <Typography noWrap>{auth.user.name}</Typography>
+                <Typography noWrap align="right">
+                  {auth.user.given_name || auth.user.name}
+                </Typography>
                 <Avatar alt={auth.user.name} src={auth.user.picture} />
               </ProfileContainer>
               <Popover

@@ -10,7 +10,7 @@ import DesktopHeader from "containers/Header/Desktop";
 import { APP_NAME } from "containers/Header/constants";
 
 import { PaletteContext } from "pages/_app";
-import { useFetchUser } from "utils/user";
+import { useUser } from "utils/user";
 
 /**
  * Header componnent
@@ -19,13 +19,13 @@ function Header(props) {
   const { isDark, setPaletteType } = useContext(PaletteContext);
   const isSmall = useMediaQuery("(max-width:800px)");
   const HeaderComponent = isMobileOnly || isSmall ? MobileHeader : DesktopHeader;
-  const fetchedUser = useFetchUser();
+  const user = useUser();
 
   return (
     <StyledAppBar position="fixed" component="nav">
       <Container maxWidth="md">
         <StyledToolbar disableGutters>
-          <HeaderComponent isDark={isDark} setPaletteType={setPaletteType} auth={fetchedUser} {...props} />
+          <HeaderComponent isDark={isDark} setPaletteType={setPaletteType} auth={user} {...props} />
         </StyledToolbar>
       </Container>
     </StyledAppBar>
