@@ -25,7 +25,7 @@ function Header(props) {
     <StyledAppBar position="fixed" component="nav">
       <Container maxWidth="md">
         <StyledToolbar disableGutters>
-          <HeaderComponent isDark={isDark} setPaletteType={setPaletteType} auth={user} {...props} />
+          <HeaderComponent isDark={ isDark } setPaletteType={ setPaletteType } auth={ user } { ...props } />
         </StyledToolbar>
       </Container>
     </StyledAppBar>

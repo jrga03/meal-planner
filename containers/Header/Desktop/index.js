@@ -71,49 +71,49 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
       </Typography>
       <Container>
         {NAVIGATION_ITEMS.map(({ title, items }) => (
-          <PopupState key={title} variant="popover" popupId={title}>
+          <PopupState key={ title } variant="popover" popupId={ title }>
             {(popupState) => (
-              <React.Fragment>
+              <>
                 <Button
                   variant="text"
                   size="large"
                   color="primary"
-                  startIcon={buttonIcons[title]}
-                  {...bindHover(popupState)}
+                  startIcon={ buttonIcons[title] }
+                  { ...bindHover(popupState) }
                 >
                   {title}
                 </Button>
                 <Popover
-                  {...bindPopover(popupState)}
-                  anchorOrigin={{
+                  { ...bindPopover(popupState) }
+                  anchorOrigin={ {
                     vertical: "bottom",
                     horizontal: "left"
-                  }}
-                  transformOrigin={{
+                  } }
+                  transformOrigin={ {
                     vertical: "top",
                     horizontal: "left"
-                  }}
+                  } }
                 >
                   <List component="nav">
                     {items.map(({ primary, href }) => (
-                      <Link key={href} href={href}>
-                        <ListItem button onClick={popupState.close} selected={isSelected(href)}>
+                      <Link key={ href } href={ href }>
+                        <ListItem button onClick={ popupState.close } selected={ isSelected(href) }>
                           <ListItemText
-                            primary={primary}
-                            primaryTypographyProps={{ color: isSelected(href) ? "primary" : "inherit" }}
+                            primary={ primary }
+                            primaryTypographyProps={ { color: isSelected(href) ? "primary" : "inherit" } }
                           />
                         </ListItem>
                       </Link>
                     ))}
                   </List>
                 </Popover>
-              </React.Fragment>
+              </>
             )}
           </PopupState>
         ))}
-        <Spacer $amount={4} />
+        <Spacer $amount={ 4 } />
         <FormControlLabel
-          control={<Switch classes={toggleClasses} checked={isDark} onChange={handleToggle(!isDark)} name="isDark" />}
+          control={ <Switch classes={ toggleClasses } checked={ isDark } onChange={ handleToggle(!isDark) } name="isDark" /> }
           label="Dark"
           labelPlacement="end"
         />
@@ -121,32 +121,32 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
       <SpacerGrow />
       {auth.loading ? (
         <>
-          <Skeleton variant="rect" width={100} style={{ marginRight: "8px" }} />
-          <Skeleton variant="circle" width={40} height={40} />
+          <Skeleton variant="rect" width={ 100 } style={ { marginRight: "8px" } } />
+          <Skeleton variant="circle" width={ 40 } height={ 40 } />
         </>
       ) : auth.user ? (
         <PopupState variant="popover" popupId="profile">
           {(popupState) => (
             <>
-              <ProfileContainer {...bindHover(popupState)}>
+              <ProfileContainer { ...bindHover(popupState) }>
                 <Typography noWrap align="right">
                   {auth.user.given_name || auth.user.name}
                 </Typography>
-                <Avatar alt={auth.user.name} src={auth.user.picture} />
+                <Avatar alt={ auth.user.name } src={ auth.user.picture } />
               </ProfileContainer>
               <Popover
-                {...bindPopover(popupState)}
-                anchorOrigin={{
+                { ...bindPopover(popupState) }
+                anchorOrigin={ {
                   vertical: "bottom",
                   horizontal: "center"
-                }}
-                transformOrigin={{
+                } }
+                transformOrigin={ {
                   vertical: "top",
                   horizontal: "left"
-                }}
+                } }
               >
                 <List>
-                  <ListItem button onClick={handleLogout}>
+                  <ListItem button onClick={ handleLogout }>
                     Logout
                   </ListItem>
                 </List>
@@ -155,7 +155,7 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
           )}
         </PopupState>
       ) : (
-        <Button variant="contained" href={createLoginUrl(router.pathname)}>
+        <Button variant="contained" href={ createLoginUrl(router.pathname) }>
           <Typography color="textPrimary" variant="button">
             Login
           </Typography>

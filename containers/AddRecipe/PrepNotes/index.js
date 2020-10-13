@@ -15,45 +15,45 @@ function PrepNotes() {
       <SectionTitle variant="h6">Prep Notes</SectionTitle>
       <FieldArray
         name="prep-notes"
-        render={({ push, remove }) => (
+        render={ ({ push, remove }) => (
           <>
             {values["prep-notes"]?.map((prepNote, index) => (
-              <PrepNoteGrid key={index}>
-                <Field name={`["prep-notes"].${index}.time`}>
+              <PrepNoteGrid key={ index }>
+                <Field name={ `["prep-notes"].${index}.time` }>
                   {({ field }) => (
                     <GenericTextField
-                      id={field.name}
+                      id={ field.name }
                       className="prep-note__time"
                       label="Start preparing"
                       select
-                      SelectProps={{ native: true }}
+                      SelectProps={ { native: true } }
                       variant="filled"
-                      {...field}
+                      { ...field }
                     >
                       {PREP_TIME_OPTIONS.map(({ value, label }) => (
-                        <option key={value} value={value}>
+                        <option key={ value } value={ value }>
                           {label}
                         </option>
                       ))}
                     </GenericTextField>
                   )}
                 </Field>
-                <Field name={`["prep-notes"].${index}.note`}>
+                <Field name={ `["prep-notes"].${index}.note` }>
                   {({ field }) => (
                     <GenericTextField
-                      id={field.name}
+                      id={ field.name }
                       className="prep-note__note"
                       label="Prep note"
                       multiline
-                      rows={2}
-                      rowsMax={2}
+                      rows={ 2 }
+                      rowsMax={ 2 }
                       variant="filled"
-                      {...field}
+                      { ...field }
                     />
                   )}
                 </Field>
                 <div className="prep-note__button">
-                  <IconButton size="small" disableRipple onClick={() => remove(index)}>
+                  <IconButton size="small" disableRipple onClick={ () => remove(index) }>
                     <DeleteIcon />
                   </IconButton>
                 </div>
@@ -63,7 +63,7 @@ function PrepNotes() {
               fullWidth
               variant="contained"
               color="primary"
-              onClick={() =>
+              onClick={ () =>
                 push({
                   time: 1,
                   note: ""
@@ -73,7 +73,7 @@ function PrepNotes() {
               Add Prep Note
             </Button>
           </>
-        )}
+        ) }
       />
     </>
   );

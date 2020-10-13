@@ -82,7 +82,7 @@ function Recipes() {
     <WithHeader
       content={
         <Wrapper>
-          <RecipeList recipes={recipes} />
+          <RecipeList recipes={ recipes } />
         </Wrapper>
       }
     />

@@ -34,12 +34,12 @@ function ListItemLink({ Icon, primary, href, onClick }) {
 
   return (
     <li>
-      <Link href={href}>
-        <ListItem button selected={selected} onClick={onClick}>
+      <Link href={ href }>
+        <ListItem button selected={ selected } onClick={ onClick }>
           <ListItemIcon>
-            <Icon color={color} />
+            <Icon color={ color } />
           </ListItemIcon>
-          <ListItemText primary={primary} primaryTypographyProps={{ color }} />
+          <ListItemText primary={ primary } primaryTypographyProps={ { color } } />
         </ListItem>
       </Link>
     </li>
@@ -81,7 +81,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
   console.log("Header", auth.user);
 
   if (startNode || endNode) {
-    return <CustomHeader title={title} startNode={startNode} endNode={endNode} />;
+    return <CustomHeader title={ title } startNode={ startNode } endNode={ endNode } />;
   }
 
   /**
@@ -108,7 +108,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
 
   return (
     <>
-      <IconButton edge="start" color="inherit" aria-label="Menu" onClick={handleToggleDrawer(true)}>
+      <IconButton edge="start" color="inherit" aria-label="Menu" onClick={ handleToggleDrawer(true) }>
         <MenuIcon />
       </IconButton>
       <Typography variant="h6" noWrap>
@@ -121,22 +121,22 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
         </IconButton>
       </Link>
       <Drawer
-        open={drawerStatus}
-        onClose={handleToggleDrawer(false)}
-        ModalProps={{
+        open={ drawerStatus }
+        onClose={ handleToggleDrawer(false) }
+        ModalProps={ {
           keepMounted: true // Better open performance on mobile.
-        }}
+        } }
       >
         <DrawerContentContainer>
           {auth.user && (
             <StyledList>
               <ListItem>
                 <ListItemAvatar>
-                  <Avatar alt={auth.user.name} src={auth.user.picture} />
+                  <Avatar alt={ auth.user.name } src={ auth.user.picture } />
                 </ListItemAvatar>
                 <ListItemText
-                  primary={auth.user.given_name || auth.user.name}
-                  primaryTypographyProps={{ noWrap: true }}
+                  primary={ auth.user.given_name || auth.user.name }
+                  primaryTypographyProps={ { noWrap: true } }
                 />
               </ListItem>
             </StyledList>
@@ -145,7 +145,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
             <StyledList>
               <ListItem>
                 <ListItemAvatar>
-                  <Skeleton variant="circle" width={40} height={40} />
+                  <Skeleton variant="circle" width={ 40 } height={ 40 } />
                 </ListItemAvatar>
                 <ListItemText>
                   <Skeleton width="100%" height="24px" />
@@ -154,23 +154,23 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
             </StyledList>
           )}
           {NAVIGATION_ITEMS.map(({ title, items }) => (
-            <React.Fragment key={title}>
-              <StyledList component="nav" subheader={<ListSubheader>{title}</ListSubheader>}>
+            <React.Fragment key={ title }>
+              <StyledList component="nav" subheader={ <ListSubheader>{title}</ListSubheader> }>
                 {items.map((item) => (
-                  <ListItemLink key={item.primary} onClick={handleToggleDrawer(false)} {...item} />
+                  <ListItemLink key={ item.primary } onClick={ handleToggleDrawer(false) } { ...item } />
                 ))}
               </StyledList>
               <StyledDivider variant="middle" />
             </React.Fragment>
           ))}
-          <StyledList subheader={<ListSubheader>Settings</ListSubheader>}>
+          <StyledList subheader={ <ListSubheader>Settings</ListSubheader> }>
             <ListItem>
               <ListItemIcon>
                 <DarkModeIcon />
               </ListItemIcon>
               <ListItemText primary="Dark mode" />
               <ListItemSecondaryAction>
-                <Switch color="primary" edge="end" checked={isDark} onChange={handleToggle(!isDark)} />
+                <Switch color="primary" edge="end" checked={ isDark } onChange={ handleToggle(!isDark) } />
               </ListItemSecondaryAction>
             </ListItem>
           </StyledList>
@@ -186,7 +186,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
                   Logout
                 </Button>
               ) : (
-                <Button fullWidth variant="contained" href={createLoginUrl(router.pathname)}>
+                <Button fullWidth variant="contained" href={ createLoginUrl(router.pathname) }>
                   Login
                 </Button>
               )}

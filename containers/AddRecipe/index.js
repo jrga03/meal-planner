@@ -97,30 +97,30 @@ function FormikContent() {
 
   return (
     <WithHeader
-      HeaderProps={{
+      HeaderProps={ {
         title: "Add Recipe",
         startNode: (
-          <IconButton edge="start" color="inherit" aria-label="Menu" onClick={handleBack}>
+          <IconButton edge="start" color="inherit" aria-label="Menu" onClick={ handleBack }>
             {isIOS ? <ArrowBackIosIcon /> : <ArrowBackIcon />}
           </IconButton>
         ),
         endNode: (
-          <Button color="secondary" variant="contained" disableElevation size="small" onClick={handleSave}>
+          <Button color="secondary" variant="contained" disableElevation size="small" onClick={ handleSave }>
             Save
           </Button>
         )
-      }}
+      } }
       content={
         <Container maxWidth="sm" disableGutters>
-          <Drawer anchor="bottom" open={drawerOpen} onClose={toggleDrawer(false)}>
+          <Drawer anchor="bottom" open={ drawerOpen } onClose={ toggleDrawer(false) }>
             <List>
-              <ListItem button onClick={handleTakePhoto(true)}>
+              <ListItem button onClick={ handleTakePhoto(true) }>
                 <ListItemIcon>
                   <CameraIcon />
                 </ListItemIcon>
                 <ListItemText primary="Take photo" />
               </ListItem>
-              <ListItem button onClick={handleTakePhoto()}>
+              <ListItem button onClick={ handleTakePhoto() }>
                 <ListItemIcon>
                   <GalleryIcon />
                 </ListItemIcon>
@@ -134,23 +134,23 @@ function FormikContent() {
                 id="file-input"
                 type="file"
                 accept="image/png, image/jpeg"
-                ref={fileInputRef}
-                onChange={handleInputChange}
+                ref={ fileInputRef }
+                onChange={ handleInputChange }
               />
               <input
                 id="file-capture"
                 type="file"
                 accept="image/png, image/jpeg"
                 capture
-                ref={fileCaptureRef}
-                onChange={handleInputChange}
+                ref={ fileCaptureRef }
+                onChange={ handleInputChange }
               />
             </Hidden>
-            <Card square elevation={0}>
-              <StyledCardActionArea onClick={toggleDrawer(true)}>
+            <Card square elevation={ 0 }>
+              <StyledCardActionArea onClick={ toggleDrawer(true) }>
                 {recipePhoto && (
                   <>
-                    <RecipePhoto component="img" image={recipePhoto} title="Recipe photo" />
+                    <RecipePhoto component="img" image={ recipePhoto } title="Recipe photo" />
                     <PhotoOverlay />
                   </>
                 )}
@@ -167,24 +167,24 @@ function FormikContent() {
             <TextFieldsContainer>
               <Field name="title">
                 {({ field }) => (
-                  <GenericTextField id={field.name} label="Title" fullWidth variant="filled" {...field} />
+                  <GenericTextField id={ field.name } label="Title" fullWidth variant="filled" { ...field } />
                 )}
               </Field>
               <Field name="source">
                 {({ field }) => (
-                  <GenericTextField id={field.name} label="Source" fullWidth variant="filled" {...field} />
+                  <GenericTextField id={ field.name } label="Source" fullWidth variant="filled" { ...field } />
                 )}
               </Field>
               <Field name="description">
                 {({ field }) => (
                   <GenericTextField
-                    id={field.name}
+                    id={ field.name }
                     label="Description"
                     fullWidth
                     multiline
-                    rowsMax={4}
+                    rowsMax={ 4 }
                     variant="filled"
-                    {...field}
+                    { ...field }
                   />
                 )}
               </Field>
@@ -202,17 +202,17 @@ function FormikContent() {
               <Field name="main-ingredient">
                 {({ field }) => (
                   <GenericTextField
-                    id={field.name}
+                    id={ field.name }
                     label="Main Ingredient"
                     fullWidth
                     select
-                    SelectProps={{ native: true }}
+                    SelectProps={ { native: true } }
                     variant="filled"
-                    {...field}
+                    { ...field }
                   >
                     <option value="" />
                     {MAIN_INGREDIENT_OPTIONS.map(({ value, label }) => (
-                      <option key={value} value={value}>
+                      <option key={ value } value={ value }>
                         {label}
                       </option>
                     ))}
@@ -221,7 +221,7 @@ function FormikContent() {
               </Field>
               <FieldArray
                 name="tags"
-                render={({ push, remove }) => {
+                render={ ({ push, remove }) => {
                   const handleDelete = (index) => () => remove(index);
                   const handleSelectTag = (event) => push(event.target.value);
 
@@ -232,26 +232,26 @@ function FormikContent() {
                         label="Tags"
                         fullWidth
                         select
-                        SelectProps={{ native: true, displayEmpty: false }}
+                        SelectProps={ { native: true, displayEmpty: false } }
                         variant="filled"
                         value=""
-                        onChange={handleSelectTag}
+                        onChange={ handleSelectTag }
                       >
                         <option value="" />
                         {TAGS_OPTIONS.map(({ value, label }) => (
-                          <option key={value} value={value} disabled={values.tags.includes(value)}>
+                          <option key={ value } value={ value } disabled={ values.tags.includes(value) }>
                             {label}
                           </option>
                         ))}
                       </GenericTextField>
                       <TagsContainer>
                         {values.tags?.map((tag, index) => (
-                          <Tag key={tag} label={tag} onDelete={handleDelete(index)} color="secondary" size="small" />
+                          <Tag key={ tag } label={ tag } onDelete={ handleDelete(index) } color="secondary" size="small" />
                         ))}
                       </TagsContainer>
                     </>
                   );
-                }}
+                } }
               />
               <StyledDivider />
 
@@ -260,7 +260,7 @@ function FormikContent() {
               {!isMobileOnly && (
                 <>
                   <StyledDivider />
-                  <Button color="primary" variant="contained" size="large" onClick={submitForm} fullWidth>
+                  <Button color="primary" variant="contained" size="large" onClick={ submitForm } fullWidth>
                     Save Recipe
                   </Button>
                 </>
@@ -279,7 +279,7 @@ function AddRecipe() {
   };
 
   return (
-    <Formik initialValues={INITIAL_VALUES} onSubmit={handleSubmit}>
+    <Formik initialValues={ INITIAL_VALUES } onSubmit={ handleSubmit }>
       {() => <FormikContent />}
     </Formik>
   );

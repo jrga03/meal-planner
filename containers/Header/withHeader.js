@@ -7,7 +7,7 @@ import { ContentWrapper } from "containers/Header/styles";
 function WithHeader({ content, HeaderProps }) {
   return (
     <>
-      <Header {...HeaderProps} />
+      <Header { ...HeaderProps } />
       <ContentWrapper>{content}</ContentWrapper>
     </>
   );

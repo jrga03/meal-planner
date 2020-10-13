@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo, createContext, useContext } from "react";
 import PropTypes from "prop-types";
 import Head from "next/head";
-import { ThemeProvider as MuiThemeProvider, createMuiTheme, responsiveFontSizes } from "@material-ui/core/styles";
+import { ThemeProvider as MuiThemeProvider, createMuiTheme, responsiveFontSizes , StylesProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { StylesProvider } from "@material-ui/core/styles";
+
 import styled, { ThemeProvider } from "styled-components";
 
 import muiTheme from "theme";
@@ -59,10 +59,10 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <StylesProvider injectFirst>
-      <MuiThemeProvider theme={theme}>
-        <ThemeProvider theme={theme}>
-          <PaletteContext.Provider value={paletteProviderValue}>
-            <UserProvider value={user}>
+      <MuiThemeProvider theme={ theme }>
+        <ThemeProvider theme={ theme }>
+          <PaletteContext.Provider value={ paletteProviderValue }>
+            <UserProvider value={ user }>
               <CssBaseline />
               <Container>
                 <Head>
@@ -95,7 +95,7 @@ function MyApp({ Component, pageProps }) {
                   <link rel="icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
                   <link rel="apple-touch-icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
                 </Head>
-                <Component {...pageProps} />
+                <Component { ...pageProps } />
               </Container>
             </UserProvider>
           </PaletteContext.Provider>

@@ -6,27 +6,24 @@
   "plugins": ["react"],
   "extends": [
     "eslint:recommended",
-    "plugin:prettier/recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
   ],
   "settings": {
     "react": {
-      "version": "16.13.1"
+      "version": "detect"
     }
   },
   "parser": "babel-eslint",
   "parserOptions": {
-    "env": {
-      "es6": true
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
     }
   },
-  "overrides": [
-    {
-      "files": ["*.js"],
-      "rules": {
-        "react/jsx-curly-spacing": [2, {"when": "never"}],
-        "react/display-name": [0]
-      }
-    }
-  ]
+  "rules": {
+    "react/jsx-curly-spacing": [2, {"when": "always"}],
+    "react/display-name": [0]
+  }
 }

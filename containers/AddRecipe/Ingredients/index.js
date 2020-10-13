@@ -20,23 +20,23 @@ function Ingredients() {
       </IngredientRow>
       <FieldArray
         name="ingredients"
-        render={({ push, remove }) => (
+        render={ ({ push, remove }) => (
           <>
             {values.ingredients?.map((ingredient, index) => (
-              <IngredientRow key={index}>
-                <Field name={`ingredients.${index}.amount`}>
-                  {({ field }) => <IngredientInput id={field.name} margin="none" {...field} />}
+              <IngredientRow key={ index }>
+                <Field name={ `ingredients.${index}.amount` }>
+                  {({ field }) => <IngredientInput id={ field.name } margin="none" { ...field } />}
                 </Field>
-                <Field name={`ingredients.${index}.unit`}>
-                  {({ field }) => <IngredientInput id={field.name} margin="none" {...field} />}
+                <Field name={ `ingredients.${index}.unit` }>
+                  {({ field }) => <IngredientInput id={ field.name } margin="none" { ...field } />}
                 </Field>
-                <Field name={`ingredients.${index}.ingredient`}>
-                  {({ field }) => <IngredientInput id={field.name} margin="none" {...field} />}
+                <Field name={ `ingredients.${index}.ingredient` }>
+                  {({ field }) => <IngredientInput id={ field.name } margin="none" { ...field } />}
                 </Field>
-                <Field name={`ingredients.${index}.note`}>
-                  {({ field }) => <IngredientInput id={field.name} margin="none" {...field} />}
+                <Field name={ `ingredients.${index}.note` }>
+                  {({ field }) => <IngredientInput id={ field.name } margin="none" { ...field } />}
                 </Field>
-                <IconButton size="small" disableRipple onClick={() => remove(index)}>
+                <IconButton size="small" disableRipple onClick={ () => remove(index) }>
                   <DeleteIcon />
                 </IconButton>
               </IngredientRow>
@@ -45,7 +45,7 @@ function Ingredients() {
               fullWidth
               variant="contained"
               color="primary"
-              onClick={() =>
+              onClick={ () =>
                 push({
                   amount: "",
                   unit: "",
@@ -57,7 +57,7 @@ function Ingredients() {
               Add ingredient
             </Button>
           </>
-        )}
+        ) }
       />
     </>
   );

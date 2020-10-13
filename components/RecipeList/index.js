@@ -14,12 +14,12 @@ const MemoizedRecipeCardItem = memo(RecipeCard, areEqual);
 /* eslint-disable react/prop-types */
 const innerElementType = forwardRef(({ style, ...rest }, ref) => (
   <div
-    ref={ref}
-    style={{
+    ref={ ref }
+    style={ {
       ...style,
       height: `${parseFloat(style.height) + RECIPE_CARD_GUTTER_SIZE * 2}px`
-    }}
-    {...rest}
+    } }
+    { ...rest }
   />
 ));
 /* eslint-enable react/prop-types */
@@ -60,26 +60,26 @@ function RecipeList({ recipes }) {
   ) : (
     <Fade in>
       <List
-        height={listHeight}
-        width={windowSize.width}
-        itemCount={recipes.length}
-        itemSize={itemHeight}
-        itemData={recipes}
-        itemKey={getKey}
-        innerElementType={innerElementType}
+        height={ listHeight }
+        width={ windowSize.width }
+        itemCount={ recipes.length }
+        itemSize={ itemHeight }
+        itemData={ recipes }
+        itemKey={ getKey }
+        innerElementType={ innerElementType }
       >
         {({ data, index, style }) => {
           const item = data[index];
           return (
             <MemoizedRecipeCardItem
-              {...item}
-              style={{
+              { ...item }
+              style={ {
                 ...style,
                 top: style.top + RECIPE_CARD_GUTTER_SIZE,
                 height: style.height - RECIPE_CARD_GUTTER_SIZE,
                 left: style.left + (windowSize.width - itemWidth) / 2,
                 width: itemWidth
-              }}
+              } }
             />
           );
         }}

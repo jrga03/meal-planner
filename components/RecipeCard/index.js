@@ -6,9 +6,9 @@ import { StyledLink, StyledCard, StyledCardMedia, StyledCardContent, RecipeTitle
 
 function RecipeCard({ id, name, photo, style }) {
   return (
-    <Link href={`/recipe/${id}`} passHref>
-      <StyledCard style={style} component={StyledLink}>
-        <StyledCardMedia image={photo} title={name} />
+    <Link href={ `/recipe/${id}` } passHref>
+      <StyledCard style={ style } component={ StyledLink }>
+        <StyledCardMedia image={ photo } title={ name } />
         <StyledCardContent>
           <RecipeTitle component="span" variant="body1" color="textPrimary">
             {name}

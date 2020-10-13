@@ -16,7 +16,7 @@ function NotFoundPage() {
       <Typography component="h1" variant="h5" gutterBottom>
         Page Not Found
       </Typography>
-      <Button onClick={handleBack} variant="contained">
+      <Button onClick={ handleBack } variant="contained">
         Go back
       </Button>
     </LoaderWrapper>

@@ -9,14 +9,14 @@ function Directions() {
       <Field name="directions">
         {({ field }) => (
           <GenericTextField
-            id={field.name}
+            id={ field.name }
             label="Directions"
             fullWidth
             multiline
-            rows={6}
-            rowsMax={20}
+            rows={ 6 }
+            rowsMax={ 20 }
             variant="filled"
-            {...field}
+            { ...field }
           />
         )}
       </Field>

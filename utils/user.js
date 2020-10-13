@@ -25,9 +25,9 @@ export const UserProvider = ({ value, children }) => {
     if (!userState && user) {
       userState = user;
     }
-  }, []);
+  }, [user]);
 
-  return <User.Provider value={value}>{children}</User.Provider>;
+  return <User.Provider value={ value }>{children}</User.Provider>;
 };
 
 UserProvider.propTypes = {
@@ -60,7 +60,7 @@ export const useFetchUser = () => {
     return () => {
       isMounted = false;
     };
-  }, [userState]);
+  }, [userState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return data;
 };

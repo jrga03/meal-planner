@@ -11,17 +11,17 @@ export const NAVIGATION_ITEMS = [
     title: "Cook",
     items: [
       {
-        Icon: (props) => <AppsIcon {...props} />,
+        Icon: (props) => <AppsIcon { ...props } />,
         primary: "Categories",
         href: "/categories"
       },
       {
-        Icon: (props) => <RestaurantIcon {...props} />,
+        Icon: (props) => <RestaurantIcon { ...props } />,
         primary: "Recipes",
         href: "/recipes"
       },
       {
-        Icon: (props) => <AddCircleIcon {...props} />,
+        Icon: (props) => <AddCircleIcon { ...props } />,
         primary: "Add a Recipe",
         href: "/recipe/add"
       }
@@ -31,7 +31,7 @@ export const NAVIGATION_ITEMS = [
     title: "Plan",
     items: [
       {
-        Icon: (props) => <DateRangeIcon {...props} />,
+        Icon: (props) => <DateRangeIcon { ...props } />,
         primary: "Plan Meals",
         href: "/plan"
       }

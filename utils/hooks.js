@@ -9,18 +9,21 @@ export function useWindowSize() {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
+  let handleResize;
   if (typeof window !== "undefined") {
-    const handleResize = () => {
+    handleResize = () => {
       setWidth(window.innerWidth);
       setHeight(window.innerHeight);
     };
+  }
 
-    useEffect(() => {
+  useEffect(() => {
+    if (handleResize) {
       handleResize();
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
-    }, []);
-  }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     height,
@@ -33,10 +36,11 @@ export function useWindowSize() {
  * @returns {number} Header height
  */
 export function useHeaderHeight() {
+  const { width } = useWindowSize();
+
   const isClient = typeof window === "object";
   if (!isClient) return 0;
 
-  const { width } = useWindowSize();
   const { screen } = window;
   const orientation = (screen.orientation || {}).type || screen.mozOrientation || screen.msOrientation;
 
