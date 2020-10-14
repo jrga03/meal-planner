@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useMemo, createContext, useContext } from "react";
 import PropTypes from "prop-types";
 import Head from "next/head";
-import { ThemeProvider as MuiThemeProvider, createMuiTheme, responsiveFontSizes , StylesProvider } from "@material-ui/core/styles";
+import {
+  ThemeProvider as MuiThemeProvider,
+  createMuiTheme,
+  responsiveFontSizes,
+  StylesProvider
+} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import styled, { ThemeProvider } from "styled-components";
 
 import muiTheme from "theme";
-import { UserProvider, useFetchUser, fetchUser } from "utils/user";
+import { UserProvider } from "utils/user";
 
 const Container = styled.div`
   display: flex;
@@ -28,17 +33,9 @@ export const LoaderWrapper = styled.div`
 export const PaletteContext = createContext({ paletteType: "light" });
 
 function MyApp({ Component, pageProps }) {
-  const user = useFetchUser();
-
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [paletteType, setPaletteType] = useState(useContext(PaletteContext).paletteType);
   const isDark = paletteType === "dark";
-
-  useEffect(() => {
-    if (!user) {
-      fetchUser();
-    }
-  }, [user]);
 
   useEffect(() => {
     const themeType = prefersDarkMode ? "dark" : "light";
@@ -62,7 +59,7 @@ function MyApp({ Component, pageProps }) {
       <MuiThemeProvider theme={ theme }>
         <ThemeProvider theme={ theme }>
           <PaletteContext.Provider value={ paletteProviderValue }>
-            <UserProvider value={ user }>
+            <UserProvider>
               <CssBaseline />
               <Container>
                 <Head>

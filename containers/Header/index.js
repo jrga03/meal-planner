@@ -10,16 +10,17 @@ import DesktopHeader from "containers/Header/Desktop";
 import { APP_NAME } from "containers/Header/constants";
 
 import { PaletteContext } from "pages/_app";
-import { useUser } from "utils/user";
+import { UserContext } from "utils/user";
 
 /**
  * Header componnent
  */
 function Header(props) {
+  const user = useContext(UserContext);
+
   const { isDark, setPaletteType } = useContext(PaletteContext);
   const isSmall = useMediaQuery("(max-width:800px)");
   const HeaderComponent = isMobileOnly || isSmall ? MobileHeader : DesktopHeader;
-  const user = useUser();
 
   return (
     <StyledAppBar position="fixed" component="nav">
