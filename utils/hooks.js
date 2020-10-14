@@ -98,5 +98,3 @@ export function usePreventRouteChangeIf(shouldPreventRouteChange, onRouteChangeP
     };
   }, [onRouteChangePrevented, router.asPath, router.events, shouldPreventRouteChange]);
 }
-
-export default usePreventRouteChangeIf;
