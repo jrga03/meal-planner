@@ -1,6 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Formik, Form, Field, FieldArray, useFormikContext } from "formik";
+import dynamic from "next/dynamic";
+import { Formik, Form, Field, useFormikContext } from "formik";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
@@ -20,37 +21,70 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import { isMobileOnly, isMobile, isIOS } from "react-device-detect";
 
-import { fileToBase64Img } from "utils/fileHelper";
+import { fileToBase64Img, compressImage } from "utils/fileHelper";
+import { usePreventRouteChangeIf } from "utils/hooks";
+import { upload } from "utils/cloudinary";
 import WithHeader from "containers/Header/withHeader";
-import { INITIAL_VALUES, MAIN_INGREDIENT_OPTIONS, TAGS_OPTIONS } from "containers/AddRecipe/constants";
+import { INITIAL_VALUES } from "containers/AddRecipe/constants";
 import {
   TextFieldsContainer,
-  TagsContainer,
   StyledCardActionArea,
   StyledCardContent,
   PhotoOverlay,
   StyledDivider,
   GenericTextField,
-  RecipePhoto,
-  Tag
+  RecipePhoto
 } from "containers/AddRecipe/styles";
 import PrepTimes from "containers/AddRecipe/PrepTimes";
 import Ingredients from "containers/AddRecipe/Ingredients";
 import PrepNotes from "containers/AddRecipe/PrepNotes";
 import Directions from "containers/AddRecipe/Directions";
+import MainIngredient from "containers/AddRecipe/MainIngredient";
+import Tags from "containers/AddRecipe/Tags";
 
-import { usePreventRouteChangeIf } from "utils/hooks";
+const Dialog = dynamic(() => import("@material-ui/core/Dialog"));
+const DialogActions = dynamic(() => import("@material-ui/core/DialogActions"));
+const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
+
+async function uploadImage({ file, setUploading }) {
+  try {
+    setUploading(true);
+    const compressed = await compressImage(file);
+    const uploaded = await upload(compressed, { folder: "recipes" });
+    const data = await uploaded.json();
+
+    return data.secure_url;
+  } catch (error) {
+    console.log(error);
+    return "";
+  } finally {
+    setUploading(false);
+  }
+}
 
 function FormikContent() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [recipePhoto, setRecipePhoto] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [discardConfirmed, setDiscardConfirmed] = useState(false);
+  const [preventedRouteUrl, setPreventedUrl] = useState(null);
 
   const fileInputRef = useRef(null);
   const fileCaptureRef = useRef(null);
 
   const router = useRouter();
-  const { values, submitForm, dirty } = useFormikContext();
-  usePreventRouteChangeIf(dirty, () => alert("form is dirty")); // TODO: Maybe check for a custom status
+  const { submitForm, dirty, setFieldValue } = useFormikContext();
+  usePreventRouteChangeIf(dirty && !discardConfirmed, (url) => {
+    setDialogOpen(true);
+    setPreventedUrl(url);
+  });
+
+  useEffect(() => {
+    if (discardConfirmed) {
+      preventedRouteUrl === null ? router.back() : router.push(preventedRouteUrl);
+    }
+  }, [discardConfirmed, preventedRouteUrl, router]);
 
   const toggleDrawer = (open) => (event) => {
     if (open && !isMobile && fileInputRef && fileInputRef.current) {
@@ -79,18 +113,25 @@ function FormikContent() {
 
     if (file) {
       image = await fileToBase64Img(file);
+      setRecipePhoto(image);
+      const photoUrl = await uploadImage({ file, setUploading });
+      setFieldValue("photo", photoUrl);
     }
-
-    setRecipePhoto(image);
   };
 
   const handleBack = () => {
     if (dirty) {
-      // TODO: Show confirm
-      alert("Form is dirty");
+      setDialogOpen(true);
     } else {
-      router.back("/");
+      router.back();
     }
+  };
+
+  const handleDialogClose = () => setDialogOpen(false);
+
+  const handleDiscardChanges = () => {
+    handleDialogClose();
+    setDiscardConfirmed(true);
   };
 
   const handleSave = () => submitForm();
@@ -199,60 +240,8 @@ function FormikContent() {
               <PrepNotes />
               <StyledDivider />
 
-              <Field name="main-ingredient">
-                {({ field }) => (
-                  <GenericTextField
-                    id={ field.name }
-                    label="Main Ingredient"
-                    fullWidth
-                    select
-                    SelectProps={ { native: true } }
-                    variant="filled"
-                    { ...field }
-                  >
-                    <option value="" />
-                    {MAIN_INGREDIENT_OPTIONS.map(({ value, label }) => (
-                      <option key={ value } value={ value }>
-                        {label}
-                      </option>
-                    ))}
-                  </GenericTextField>
-                )}
-              </Field>
-              <FieldArray
-                name="tags"
-                render={ ({ push, remove }) => {
-                  const handleDelete = (index) => () => remove(index);
-                  const handleSelectTag = (event) => push(event.target.value);
-
-                  return (
-                    <>
-                      <GenericTextField
-                        id="tag-selector"
-                        label="Tags"
-                        fullWidth
-                        select
-                        SelectProps={ { native: true, displayEmpty: false } }
-                        variant="filled"
-                        value=""
-                        onChange={ handleSelectTag }
-                      >
-                        <option value="" />
-                        {TAGS_OPTIONS.map(({ value, label }) => (
-                          <option key={ value } value={ value } disabled={ values.tags.includes(value) }>
-                            {label}
-                          </option>
-                        ))}
-                      </GenericTextField>
-                      <TagsContainer>
-                        {values.tags?.map((tag, index) => (
-                          <Tag key={ tag } label={ tag } onDelete={ handleDelete(index) } color="secondary" size="small" />
-                        ))}
-                      </TagsContainer>
-                    </>
-                  );
-                } }
-              />
+              <MainIngredient />
+              <Tags />
               <StyledDivider />
 
               <Directions />
@@ -267,6 +256,21 @@ function FormikContent() {
               )}
             </TextFieldsContainer>
           </Form>
+
+          {dialogOpen && (
+            <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
+              <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
+
+              <DialogActions>
+                <Button onClick={ handleDialogClose } color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={ handleDiscardChanges } color="primary" autoFocus>
+                  Discard
+                </Button>
+              </DialogActions>
+            </Dialog>
+          )}
         </Container>
       }
     />
