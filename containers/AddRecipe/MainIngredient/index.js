@@ -1,10 +1,12 @@
 import React from "react";
-import { Field } from "formik";
+import { Field, useFormikContext } from "formik";
 
 import { MAIN_INGREDIENT_OPTIONS } from "containers/AddRecipe/constants";
 import { GenericTextField } from "containers/AddRecipe/styles";
 
 function MainIngredient() {
+  const { errors } = useFormikContext();
+
   return (
     <Field name="main-ingredient">
       {({ field }) => (
@@ -15,6 +17,8 @@ function MainIngredient() {
           select
           SelectProps={ { native: true } }
           variant="filled"
+          error={ !!errors[field.name] }
+          helperText={ errors[field.name] || "" }
           { ...field }
         >
           <option value="" />

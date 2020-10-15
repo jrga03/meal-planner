@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { Formik, Form, Field, useFormikContext } from "formik";
-import Container from "@material-ui/core/Container";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
@@ -20,11 +20,12 @@ import GalleryIcon from "@material-ui/icons/PhotoLibrary";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import { isMobileOnly, isMobile, isIOS } from "react-device-detect";
+import * as Yup from "yup";
 
 import { fileToBase64Img, compressImage } from "utils/fileHelper";
 import { usePreventRouteChangeIf } from "utils/hooks";
 import { upload } from "utils/cloudinary";
-import WithHeader from "containers/Header/withHeader";
+import PageWrapper from "components/PageWrapper";
 import { INITIAL_VALUES } from "containers/AddRecipe/constants";
 import {
   TextFieldsContainer,
@@ -46,6 +47,34 @@ const Dialog = dynamic(() => import("@material-ui/core/Dialog"));
 const DialogActions = dynamic(() => import("@material-ui/core/DialogActions"));
 const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
 
+const RecipeSchema = Yup.object().shape({
+  photo: Yup.string(),
+  title: Yup.string().min(3, "Title too short!").max(50, "Title too long!").required("Required"),
+  source: Yup.string(),
+  description: Yup.string(),
+  "prep-hours": Yup.string(),
+  "prep-minutes": Yup.string(),
+  "cook-hours": Yup.string(),
+  "cook-minutes": Yup.string(),
+  ingredients: Yup.array().of(
+    Yup.object().shape({
+      amount: Yup.string(),
+      unit: Yup.string(),
+      ingredient: Yup.string(),
+      note: Yup.string()
+    })
+  ),
+  "prep-notes": Yup.array().of(
+    Yup.object().shape({
+      time: Yup.number(),
+      note: Yup.string()
+    })
+  ),
+  directions: Yup.string(),
+  "main-ingredient": Yup.string().required("Required"),
+  tags: Yup.array().of(Yup.string())
+});
+
 async function uploadImage({ file, setUploading }) {
   try {
     setUploading(true);
@@ -63,6 +92,8 @@ async function uploadImage({ file, setUploading }) {
 }
 
 function FormikContent() {
+  const isSmall = useMediaQuery("(max-width:800px)");
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [recipePhoto, setRecipePhoto] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -74,7 +105,8 @@ function FormikContent() {
   const fileCaptureRef = useRef(null);
 
   const router = useRouter();
-  const { submitForm, dirty, setFieldValue } = useFormikContext();
+  const { submitForm, dirty, setFieldValue, errors } = useFormikContext();
+  console.log("errors", errors); // TODO:
   usePreventRouteChangeIf(dirty && !discardConfirmed, (url) => {
     setDialogOpen(true);
     setPreventedUrl(url);
@@ -137,7 +169,10 @@ function FormikContent() {
   const handleSave = () => submitForm();
 
   return (
-    <WithHeader
+    <PageWrapper
+      maxWidth="sm"
+      disableGutters
+      withHeader
       HeaderProps={ {
         title: "Add Recipe",
         startNode: (
@@ -151,139 +186,149 @@ function FormikContent() {
           </Button>
         )
       } }
-      content={
-        <Container maxWidth="sm" disableGutters>
-          <Drawer anchor="bottom" open={ drawerOpen } onClose={ toggleDrawer(false) }>
-            <List>
-              <ListItem button onClick={ handleTakePhoto(true) }>
-                <ListItemIcon>
-                  <CameraIcon />
-                </ListItemIcon>
-                <ListItemText primary="Take photo" />
-              </ListItem>
-              <ListItem button onClick={ handleTakePhoto() }>
-                <ListItemIcon>
-                  <GalleryIcon />
-                </ListItemIcon>
-                <ListItemText primary="Choose existing photo" />
-              </ListItem>
-            </List>
-          </Drawer>
-          <Form>
-            <Hidden implementation="css" xsUp>
-              <input
-                id="file-input"
-                type="file"
-                accept="image/png, image/jpeg"
-                ref={ fileInputRef }
-                onChange={ handleInputChange }
-              />
-              <input
-                id="file-capture"
-                type="file"
-                accept="image/png, image/jpeg"
-                capture
-                ref={ fileCaptureRef }
-                onChange={ handleInputChange }
-              />
-            </Hidden>
-            <Card square elevation={ 0 }>
-              <StyledCardActionArea onClick={ toggleDrawer(true) }>
-                {recipePhoto && (
-                  <>
-                    <RecipePhoto component="img" image={ recipePhoto } title="Recipe photo" />
-                    <PhotoOverlay />
-                  </>
-                )}
-                <StyledCardContent>
-                  {!recipePhoto && (
-                    <Avatar>
-                      <PhotoIcon />
-                    </Avatar>
-                  )}
-                  <Typography variant="button">{recipePhoto ? "Change" : "Add"} Photo</Typography>
-                </StyledCardContent>
-              </StyledCardActionArea>
-            </Card>
-            <TextFieldsContainer>
-              <Field name="title">
-                {({ field }) => (
-                  <GenericTextField id={ field.name } label="Title" fullWidth variant="filled" { ...field } />
-                )}
-              </Field>
-              <Field name="source">
-                {({ field }) => (
-                  <GenericTextField id={ field.name } label="Source" fullWidth variant="filled" { ...field } />
-                )}
-              </Field>
-              <Field name="description">
-                {({ field }) => (
-                  <GenericTextField
-                    id={ field.name }
-                    label="Description"
-                    fullWidth
-                    multiline
-                    rowsMax={ 4 }
-                    variant="filled"
-                    { ...field }
-                  />
-                )}
-              </Field>
-              <StyledDivider />
-
-              <PrepTimes />
-              <StyledDivider />
-
-              <Ingredients />
-              <StyledDivider />
-
-              <PrepNotes />
-              <StyledDivider />
-
-              <MainIngredient />
-              <Tags />
-              <StyledDivider />
-
-              <Directions />
-
-              {!isMobileOnly && (
-                <>
-                  <StyledDivider />
-                  <Button color="primary" variant="contained" size="large" onClick={ submitForm } fullWidth>
-                    Save Recipe
-                  </Button>
-                </>
+      withFooter={ false }
+    >
+      <Drawer anchor="bottom" open={ drawerOpen } onClose={ toggleDrawer(false) }>
+        <List>
+          <ListItem button onClick={ handleTakePhoto(true) }>
+            <ListItemIcon>
+              <CameraIcon />
+            </ListItemIcon>
+            <ListItemText primary="Take photo" />
+          </ListItem>
+          <ListItem button onClick={ handleTakePhoto() }>
+            <ListItemIcon>
+              <GalleryIcon />
+            </ListItemIcon>
+            <ListItemText primary="Choose existing photo" />
+          </ListItem>
+        </List>
+      </Drawer>
+      <Form>
+        <Hidden implementation="css" xsUp>
+          <input
+            id="file-input"
+            type="file"
+            accept="image/png, image/jpeg"
+            ref={ fileInputRef }
+            onChange={ handleInputChange }
+          />
+          <input
+            id="file-capture"
+            type="file"
+            accept="image/png, image/jpeg"
+            capture
+            ref={ fileCaptureRef }
+            onChange={ handleInputChange }
+          />
+        </Hidden>
+        <Card square elevation={ 0 }>
+          <StyledCardActionArea onClick={ toggleDrawer(true) }>
+            {recipePhoto && (
+              <>
+                <RecipePhoto component="img" image={ recipePhoto } title="Recipe photo" />
+                <PhotoOverlay />
+              </>
+            )}
+            <StyledCardContent>
+              {!recipePhoto && (
+                <Avatar>
+                  <PhotoIcon />
+                </Avatar>
               )}
-            </TextFieldsContainer>
-          </Form>
+              <Typography variant="button">{recipePhoto ? "Change" : "Add"} Photo</Typography>
+            </StyledCardContent>
+          </StyledCardActionArea>
+        </Card>
+        <TextFieldsContainer>
+          <Field name="title">
+            {({ field }) => (
+              <GenericTextField
+                id={ field.name }
+                label="Title"
+                fullWidth
+                variant="filled"
+                error={ !!errors[field.name] }
+                helperText={ errors[field.name] || "" }
+                { ...field }
+              />
+            )}
+          </Field>
+          <Field name="source">
+            {({ field }) => <GenericTextField id={ field.name } label="Source" fullWidth variant="filled" { ...field } />}
+          </Field>
+          <Field name="description">
+            {({ field }) => (
+              <GenericTextField
+                id={ field.name }
+                label="Description"
+                fullWidth
+                multiline
+                rowsMax={ 4 }
+                variant="filled"
+                { ...field }
+              />
+            )}
+          </Field>
+          <StyledDivider />
 
-          {dialogOpen && (
-            <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
-              <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
+          <PrepTimes />
+          <StyledDivider />
 
-              <DialogActions>
-                <Button onClick={ handleDialogClose } color="primary">
-                  Cancel
-                </Button>
-                <Button onClick={ handleDiscardChanges } color="primary" autoFocus>
-                  Discard
-                </Button>
-              </DialogActions>
-            </Dialog>
+          <Ingredients />
+          <StyledDivider />
+
+          <PrepNotes />
+          <StyledDivider />
+
+          <MainIngredient />
+          <Tags />
+          <StyledDivider />
+
+          <Directions />
+
+          {!(isMobileOnly || isSmall) && (
+            <>
+              <StyledDivider />
+              <Button color="primary" variant="contained" size="large" onClick={ submitForm } fullWidth>
+                Save Recipe
+              </Button>
+            </>
           )}
-        </Container>
-      }
-    />
+        </TextFieldsContainer>
+      </Form>
+
+      {dialogOpen && (
+        <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
+          <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
+
+          <DialogActions>
+            <Button onClick={ handleDialogClose } color="primary">
+              Cancel
+            </Button>
+            <Button onClick={ handleDiscardChanges } color="primary" autoFocus>
+              Discard
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </PageWrapper>
   );
 }
 
 function AddRecipe() {
   const handleSubmit = (values) => {
-    console.log(values); // TODO:
+    console.log("handleSubmit", values); // TODO:
   };
 
   return (
-    <Formik initialValues={ INITIAL_VALUES } onSubmit={ handleSubmit }>
+    <Formik
+      initialValues={ INITIAL_VALUES }
+      onSubmit={ handleSubmit }
+      validationSchema={ RecipeSchema }
+      validateOnBlur
+      validateOnChange={ false }
+    >
       {() => <FormikContent />}
     </Formik>
   );
