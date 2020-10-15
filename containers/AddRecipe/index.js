@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { Formik, Form, Field, useFormikContext } from "formik";
@@ -105,18 +105,37 @@ function FormikContent() {
   const fileCaptureRef = useRef(null);
 
   const router = useRouter();
-  const { submitForm, dirty, setFieldValue, errors } = useFormikContext();
-  console.log("errors", errors); // TODO:
+  const { submitForm, dirty, setFieldValue, errors, isSubmitting, isValidating } = useFormikContext();
+
+  // Prevent route change if form is dirty
   usePreventRouteChangeIf(dirty && !discardConfirmed, (url) => {
     setDialogOpen(true);
     setPreventedUrl(url);
   });
 
+  // Handler for action after selecting to discard unsaved changes
   useEffect(() => {
     if (discardConfirmed) {
       preventedRouteUrl === null ? router.back() : router.push(preventedRouteUrl);
     }
   }, [discardConfirmed, preventedRouteUrl, router]);
+
+  const handleBeforeUnload = useCallback(
+    (event) => {
+      if (dirty) {
+        event.preventDefault();
+        event.returnValue = "";
+        return event;
+      }
+    },
+    [dirty]
+  );
+
+  // Listen to page navigation using browser
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [handleBeforeUnload]);
 
   const toggleDrawer = (open) => (event) => {
     if (open && !isMobile && fileInputRef && fileInputRef.current) {
@@ -181,7 +200,14 @@ function FormikContent() {
           </IconButton>
         ),
         endNode: (
-          <Button color="secondary" variant="contained" disableElevation size="small" onClick={ handleSave }>
+          <Button
+            color="secondary"
+            variant="contained"
+            disableElevation
+            size="small"
+            onClick={ handleSave }
+            disabled={ isValidating || isSubmitting || uploading }
+          >
             Save
           </Button>
         )
@@ -223,7 +249,7 @@ function FormikContent() {
           />
         </Hidden>
         <Card square elevation={ 0 }>
-          <StyledCardActionArea onClick={ toggleDrawer(true) }>
+          <StyledCardActionArea onClick={ toggleDrawer(true) } disabled={ isValidating || isSubmitting }>
             {recipePhoto && (
               <>
                 <RecipePhoto component="img" image={ recipePhoto } title="Recipe photo" />
@@ -290,7 +316,14 @@ function FormikContent() {
           {!(isMobileOnly || isSmall) && (
             <>
               <StyledDivider />
-              <Button color="primary" variant="contained" size="large" onClick={ submitForm } fullWidth>
+              <Button
+                color="primary"
+                variant="contained"
+                size="large"
+                onClick={ submitForm }
+                fullWidth
+                disabled={ isValidating || isSubmitting || uploading }
+              >
                 Save Recipe
               </Button>
             </>
@@ -326,7 +359,7 @@ function AddRecipe() {
       initialValues={ INITIAL_VALUES }
       onSubmit={ handleSubmit }
       validationSchema={ RecipeSchema }
-      validateOnBlur
+      validateOnBlur={ false }
       validateOnChange={ false }
     >
       {() => <FormikContent />}
