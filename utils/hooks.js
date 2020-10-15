@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useRouter } from "next/router";
 
 /**
@@ -17,7 +17,7 @@ export function useWindowSize() {
     };
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (handleResize) {
       handleResize();
       window.addEventListener("resize", handleResize);
