@@ -1,5 +1,5 @@
 import React from "react";
-import WithHeader from "containers/Header/withHeader";
+import PageWrapper from "components/PageWrapper";
 
-const Plan = () => <WithHeader content="Plan" />;
+const Plan = () => <PageWrapper>Plan</PageWrapper>;
 export default Plan;

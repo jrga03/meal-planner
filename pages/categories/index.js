@@ -1,5 +1,5 @@
 import React from "react";
-import WithHeader from "containers/Header/withHeader";
+import PageWrapper from "components/PageWrapper";
 
-const Categories = () => <WithHeader content="Categories" />;
+const Categories = () => <PageWrapper>Categories</PageWrapper>;
 export default Categories;

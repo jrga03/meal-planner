@@ -78,7 +78,6 @@ CustomHeader.propTypes = {
 function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode }) {
   const router = useRouter();
   const [drawerStatus, setDrawerStatus] = useState(false);
-  console.log("Header", auth.user);
 
   if (startNode || endNode) {
     return <CustomHeader title={ title } startNode={ startNode } endNode={ endNode } />;
