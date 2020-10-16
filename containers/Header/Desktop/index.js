@@ -2,15 +2,12 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { makeStyles } from "@material-ui/core/styles";
-import { grey } from "@material-ui/core/colors";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
 import Avatar from "@material-ui/core/Avatar";
 import OutdoorGrillIcon from "@material-ui/icons/OutdoorGrill";
 import TodayIcon from "@material-ui/icons/Today";
@@ -18,31 +15,16 @@ import Skeleton from "@material-ui/lab/Skeleton";
 import PopupState, { bindPopover, bindHover } from "material-ui-popup-state";
 import Popover from "material-ui-popup-state/HoverPopover";
 
-import { Container, Spacer, SpacerGrow, ProfileContainer } from "containers/Header/styles";
+import { Container, Spacer, SpacerGrow, ProfileContainer, StyledSwitch } from "containers/Header/styles";
 
 import { APP_NAME, NAVIGATION_ITEMS } from "containers/Header/constants";
 
 import createLoginUrl from "utils/urlHelper";
 
-const toggleStyles = makeStyles(() => ({
-  switchBase: {
-    color: grey[200],
-    "&$checked": {
-      color: grey[400]
-    },
-    "&$checked + $track": {
-      backgroundColor: grey[400]
-    }
-  },
-  checked: {},
-  track: {}
-}));
-
 /**
  * Header for desktop
  */
 function DesktopHeader({ auth, isDark, setPaletteType }) {
-  const toggleClasses = toggleStyles();
   const router = useRouter();
   const isSelected = (href) => router.asPath === href;
 
@@ -62,7 +44,7 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
     };
   }
 
-  const handleLogout = () => router.push("/api/logout");
+  const handleLogout = () => router.push("/api/auth/logout");
 
   return (
     <>
@@ -113,7 +95,7 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
         ))}
         <Spacer $amount={ 4 } />
         <FormControlLabel
-          control={ <Switch classes={ toggleClasses } checked={ isDark } onChange={ handleToggle(!isDark) } name="isDark" /> }
+          control={ <StyledSwitch checked={ isDark } onChange={ handleToggle(!isDark) } name="isDark" /> }
           label="Dark"
           labelPlacement="end"
         />

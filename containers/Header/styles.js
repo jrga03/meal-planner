@@ -3,6 +3,8 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Divider from "@material-ui/core/Divider";
 import List from "@material-ui/core/List";
+import Switch from "@material-ui/core/Switch";
+import { grey } from "@material-ui/core/colors";
 
 export const StyledAppBar = styled(AppBar)`
   align-items: center;
@@ -52,4 +54,16 @@ export const ProfileContainer = styled.div`
   grid-template-columns: 150px min-content;
   column-gap: ${({ theme }) => theme.spacing(1)}px;
   align-items: center;
+`;
+
+export const StyledSwitch = styled(Switch)`
+  color: ${grey[200]};
+
+  .Mui-checked {
+    color: ${grey[400]};
+  }
+
+  .Mui-checked + .MuiSwitch-track {
+    background-color: ${grey[400]};
+  }
 `;
