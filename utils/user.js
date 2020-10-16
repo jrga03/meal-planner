@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 export const UserContext = createContext({ user: null, loading: true });
 
 export const fetchUser = async () => {
-  const res = await fetch("/api/me");
+  const res = await fetch("/api/auth/me");
   return res.ok ? await res.json() : null;
 };
 

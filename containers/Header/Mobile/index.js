@@ -114,11 +114,13 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
         {title}
       </Typography>
       <SpacerGrow />
-      <Link href="/search">
+      {/* TODO: */}
+      {/* <Link href="/search">
         <IconButton edge="end" color="inherit" aria-label="Search">
           <Search />
         </IconButton>
-      </Link>
+      </Link> */}
+      {/* TODO: */}
       <Drawer
         open={ drawerStatus }
         onClose={ handleToggleDrawer(false) }
@@ -181,7 +183,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
                   <Button>Loading...</Button>
                 </Skeleton>
               ) : auth.user ? (
-                <Button fullWidth href="/api/logout">
+                <Button fullWidth href="/api/auth/logout">
                   Logout
                 </Button>
               ) : (
