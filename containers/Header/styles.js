@@ -4,6 +4,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Divider from "@material-ui/core/Divider";
 import List from "@material-ui/core/List";
 import Switch from "@material-ui/core/Switch";
+import Typography from "@material-ui/core/Typography";
 import { grey } from "@material-ui/core/colors";
 
 export const StyledAppBar = styled(AppBar)`
@@ -66,4 +67,8 @@ export const StyledSwitch = styled(Switch)`
   .Mui-checked + .MuiSwitch-track {
     background-color: ${grey[400]};
   }
+`;
+
+export const StyledTypography = styled(Typography)`
+  ${({ $isDark }) => $isDark && `color: ${grey[700]}`};
 `;

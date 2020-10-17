@@ -15,7 +15,14 @@ import Skeleton from "@material-ui/lab/Skeleton";
 import PopupState, { bindPopover, bindHover } from "material-ui-popup-state";
 import Popover from "material-ui-popup-state/HoverPopover";
 
-import { Container, Spacer, SpacerGrow, ProfileContainer, StyledSwitch } from "containers/Header/styles";
+import {
+  Container,
+  Spacer,
+  SpacerGrow,
+  ProfileContainer,
+  StyledSwitch,
+  StyledTypography
+} from "containers/Header/styles";
 
 import { APP_NAME, NAVIGATION_ITEMS } from "containers/Header/constants";
 
@@ -138,9 +145,9 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
         </PopupState>
       ) : (
         <Button variant="contained" href={ createLoginUrl(router.pathname) }>
-          <Typography color="textPrimary" variant="button">
+          <StyledTypography $isDark={ isDark } color="textPrimary" variant="button">
             Login
-          </Typography>
+          </StyledTypography>
         </Button>
       )}
     </>
