@@ -1,3 +1,5 @@
+import * as Yup from "yup";
+
 export const INITIAL_VALUES = {
   photo: "",
   title: "",
@@ -20,6 +22,36 @@ export const INITIAL_VALUES = {
   "main-ingredient": "",
   tags: []
 };
+
+export const INITIAL_STATUS = { uploading: false };
+
+export const RECIPE_SCHEMA = Yup.object().shape({
+  photo: Yup.string(),
+  title: Yup.string().min(3, "Title too short!").max(50, "Title too long!").required("Required"),
+  source: Yup.string(),
+  description: Yup.string(),
+  "prep-hours": Yup.string(),
+  "prep-minutes": Yup.string(),
+  "cook-hours": Yup.string(),
+  "cook-minutes": Yup.string(),
+  ingredients: Yup.array().of(
+    Yup.object().shape({
+      amount: Yup.string(),
+      unit: Yup.string(),
+      ingredient: Yup.string(),
+      note: Yup.string()
+    })
+  ),
+  "prep-notes": Yup.array().of(
+    Yup.object().shape({
+      time: Yup.number(),
+      note: Yup.string()
+    })
+  ),
+  directions: Yup.string(),
+  "main-ingredient": Yup.string().required("Required"),
+  tags: Yup.array().of(Yup.string())
+});
 
 export const PREP_TIME_OPTIONS = [
   { label: "The day itself", value: 0 },
