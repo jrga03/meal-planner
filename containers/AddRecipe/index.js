@@ -1,11 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { Formik, Form, Field, useFormikContext } from "formik";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
-import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import Drawer from "@material-ui/core/Drawer";
@@ -14,19 +13,23 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Hidden from "@material-ui/core/Hidden";
-import PhotoIcon from "@material-ui/icons/PhotoCamera";
 import CameraIcon from "@material-ui/icons/AddAPhoto";
 import GalleryIcon from "@material-ui/icons/PhotoLibrary";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import { isMobileOnly, isMobile, isIOS } from "react-device-detect";
-import * as Yup from "yup";
 
+// Utilities
 import { fileToBase64Img, compressImage } from "utils/fileHelper";
 import { usePreventRouteChangeIf } from "utils/hooks";
 import { upload } from "utils/cloudinary";
+import { UserContext } from "utils/user";
+
+// Components
 import PageWrapper from "components/PageWrapper";
-import { INITIAL_VALUES } from "containers/AddRecipe/constants";
+
+// Containers
+import { INITIAL_VALUES, INITIAL_STATUS, RECIPE_SCHEMA } from "containers/AddRecipe/constants";
 import {
   TextFieldsContainer,
   StyledCardActionArea,
@@ -43,99 +46,36 @@ import Directions from "containers/AddRecipe/Directions";
 import MainIngredient from "containers/AddRecipe/MainIngredient";
 import Tags from "containers/AddRecipe/Tags";
 
+// Dynamic components
 const Dialog = dynamic(() => import("@material-ui/core/Dialog"));
 const DialogActions = dynamic(() => import("@material-ui/core/DialogActions"));
 const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
+const Avatar = dynamic(() => import("@material-ui/core/Avatar"));
+const PhotoIcon = dynamic(() => import("@material-ui/icons/PhotoCamera"));
 
-const RecipeSchema = Yup.object().shape({
-  photo: Yup.string(),
-  title: Yup.string().min(3, "Title too short!").max(50, "Title too long!").required("Required"),
-  source: Yup.string(),
-  description: Yup.string(),
-  "prep-hours": Yup.string(),
-  "prep-minutes": Yup.string(),
-  "cook-hours": Yup.string(),
-  "cook-minutes": Yup.string(),
-  ingredients: Yup.array().of(
-    Yup.object().shape({
-      amount: Yup.string(),
-      unit: Yup.string(),
-      ingredient: Yup.string(),
-      note: Yup.string()
-    })
-  ),
-  "prep-notes": Yup.array().of(
-    Yup.object().shape({
-      time: Yup.number(),
-      note: Yup.string()
-    })
-  ),
-  directions: Yup.string(),
-  "main-ingredient": Yup.string().required("Required"),
-  tags: Yup.array().of(Yup.string())
-});
-
-async function uploadImage({ file, setUploading }) {
-  try {
-    setUploading(true);
-    const compressed = await compressImage(file);
-    const uploaded = await upload(compressed, { folder: "recipes" });
-    const data = await uploaded.json();
-
-    return data.secure_url;
-  } catch (error) {
-    console.log(error);
-    return "";
-  } finally {
-    setUploading(false);
-  }
-}
-
+/**
+ * FormikContent
+ */
 function FormikContent() {
   const isSmall = useMediaQuery("(max-width:800px)");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [recipePhoto, setRecipePhoto] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [discardConfirmed, setDiscardConfirmed] = useState(false);
-  const [preventedRouteUrl, setPreventedUrl] = useState(null);
 
   const fileInputRef = useRef(null);
   const fileCaptureRef = useRef(null);
 
-  const router = useRouter();
-  const { submitForm, dirty, setFieldValue, errors, isSubmitting, isValidating } = useFormikContext();
-
-  // Prevent route change if form is dirty
-  usePreventRouteChangeIf(dirty && !discardConfirmed, (url) => {
-    setDialogOpen(true);
-    setPreventedUrl(url);
-  });
-
-  // Handler for action after selecting to discard unsaved changes
-  useEffect(() => {
-    if (discardConfirmed) {
-      preventedRouteUrl === null ? router.back() : router.push(preventedRouteUrl);
-    }
-  }, [discardConfirmed, preventedRouteUrl, router]);
-
-  const handleBeforeUnload = useCallback(
-    (event) => {
-      if (dirty) {
-        event.preventDefault();
-        event.returnValue = "";
-        return event;
-      }
-    },
-    [dirty]
-  );
-
-  // Listen to page navigation using browser
-  useEffect(() => {
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [handleBeforeUnload]);
+  const {
+    submitForm,
+    setFieldValue,
+    errors,
+    isSubmitting,
+    isValidating,
+    values,
+    status,
+    setStatus
+  } = useFormikContext();
+  const { uploading } = status;
 
   const toggleDrawer = (open) => (event) => {
     if (open && !isMobile && fileInputRef && fileInputRef.current) {
@@ -158,6 +98,28 @@ function FormikContent() {
     }
   };
 
+  async function uploadImage(file) {
+    try {
+      setStatus({
+        ...status,
+        uploading: true
+      });
+      const compressed = await compressImage(file);
+      const uploaded = await upload(compressed, { folder: "recipes" });
+      const data = await uploaded.json();
+
+      return data.secure_url;
+    } catch (error) {
+      console.log(error);
+      return "";
+    } finally {
+      setStatus({
+        ...status,
+        uploading: false
+      });
+    }
+  }
+
   const handleInputChange = async (event) => {
     const file = event?.target?.files?.[0];
     let image = null;
@@ -165,55 +127,13 @@ function FormikContent() {
     if (file) {
       image = await fileToBase64Img(file);
       setRecipePhoto(image);
-      const photoUrl = await uploadImage({ file, setUploading });
+      const photoUrl = await uploadImage(file);
       setFieldValue("photo", photoUrl);
     }
   };
 
-  const handleBack = () => {
-    if (dirty) {
-      setDialogOpen(true);
-    } else {
-      router.back();
-    }
-  };
-
-  const handleDialogClose = () => setDialogOpen(false);
-
-  const handleDiscardChanges = () => {
-    handleDialogClose();
-    setDiscardConfirmed(true);
-  };
-
-  const handleSave = () => submitForm();
-
   return (
-    <PageWrapper
-      maxWidth="sm"
-      disableGutters
-      withHeader
-      HeaderProps={ {
-        title: "Add Recipe",
-        startNode: (
-          <IconButton edge="start" color="inherit" aria-label="Menu" onClick={ handleBack }>
-            {isIOS ? <ArrowBackIosIcon /> : <ArrowBackIcon />}
-          </IconButton>
-        ),
-        endNode: (
-          <Button
-            color="secondary"
-            variant="contained"
-            disableElevation
-            size="small"
-            onClick={ handleSave }
-            disabled={ isValidating || isSubmitting || uploading }
-          >
-            Save
-          </Button>
-        )
-      } }
-      withFooter={ false }
-    >
+    <>
       <Drawer anchor="bottom" open={ drawerOpen } onClose={ toggleDrawer(false) }>
         <List>
           <ListItem button onClick={ handleTakePhoto(true) }>
@@ -231,28 +151,11 @@ function FormikContent() {
         </List>
       </Drawer>
       <Form>
-        <Hidden implementation="css" xsUp>
-          <input
-            id="file-input"
-            type="file"
-            accept="image/png, image/jpeg"
-            ref={ fileInputRef }
-            onChange={ handleInputChange }
-          />
-          <input
-            id="file-capture"
-            type="file"
-            accept="image/png, image/jpeg"
-            capture
-            ref={ fileCaptureRef }
-            onChange={ handleInputChange }
-          />
-        </Hidden>
         <Card square elevation={ 0 }>
           <StyledCardActionArea onClick={ toggleDrawer(true) } disabled={ isValidating || isSubmitting }>
             {recipePhoto && (
               <>
-                <RecipePhoto component="img" image={ recipePhoto } title="Recipe photo" />
+                <RecipePhoto component="img" image={ recipePhoto || values.photo } title="Recipe photo" />
                 <PhotoOverlay />
               </>
             )}
@@ -331,6 +234,115 @@ function FormikContent() {
         </TextFieldsContainer>
       </Form>
 
+      <Hidden implementation="css" xsUp>
+        <input
+          id="file-input"
+          type="file"
+          accept="image/png, image/jpeg"
+          ref={ fileInputRef }
+          onChange={ handleInputChange }
+        />
+        <input
+          id="file-capture"
+          type="file"
+          accept="image/png, image/jpeg"
+          capture
+          ref={ fileCaptureRef }
+          onChange={ handleInputChange }
+        />
+      </Hidden>
+    </>
+  );
+}
+
+/**
+ * PageContent
+ */
+function PageContent() {
+  const router = useRouter();
+  const { submitForm, dirty, isSubmitting, isValidating, status } = useFormikContext();
+  const { uploading } = status;
+  console.log("uploading", uploading);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [discardConfirmed, setDiscardConfirmed] = useState(false);
+  const [preventedRouteUrl, setPreventedUrl] = useState(null);
+
+  // Prevent route change if form is dirty
+  usePreventRouteChangeIf(dirty && !discardConfirmed, (url) => {
+    setDialogOpen(true);
+    setPreventedUrl(url);
+  });
+
+  // Handler for action after selecting to discard unsaved changes
+  useEffect(() => {
+    if (discardConfirmed) {
+      preventedRouteUrl === null ? router.back() : router.push(preventedRouteUrl);
+    }
+  }, [discardConfirmed, preventedRouteUrl, router]);
+
+  const handleBeforeUnload = useCallback(
+    (event) => {
+      if (dirty) {
+        event.preventDefault();
+        event.returnValue = "";
+        return event;
+      }
+    },
+    [dirty]
+  );
+
+  // Listen to page navigation using browser
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [handleBeforeUnload]);
+
+  const handleDialogClose = () => setDialogOpen(false);
+
+  const handleDiscardChanges = () => {
+    handleDialogClose();
+    setDiscardConfirmed(true);
+  };
+
+  const handleBack = () => {
+    if (dirty) {
+      setDialogOpen(true);
+    } else {
+      router.back();
+    }
+  };
+
+  const handleSave = () => submitForm();
+
+  return (
+    <PageWrapper
+      maxWidth="sm"
+      disableGutters
+      withHeader
+      HeaderProps={ {
+        title: "Add Recipe",
+        startNode: (
+          <IconButton edge="start" color="inherit" aria-label="Menu" onClick={ handleBack }>
+            {isIOS ? <ArrowBackIosIcon /> : <ArrowBackIcon />}
+          </IconButton>
+        ),
+        endNode: (
+          <Button
+            color="secondary"
+            variant="contained"
+            disableElevation
+            size="small"
+            onClick={ handleSave }
+            disabled={ isValidating || isSubmitting || uploading }
+          >
+            Save
+          </Button>
+        )
+      } }
+      withFooter={ false }
+    >
+      <FormikContent />
       {dialogOpen && (
         <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
           <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
@@ -349,20 +361,40 @@ function FormikContent() {
   );
 }
 
+/**
+ * AddRecipe
+ */
 function AddRecipe() {
-  const handleSubmit = (values) => {
-    console.log("handleSubmit", values); // TODO:
+  const { user } = useContext(UserContext);
+  const handleSubmit = async (values) => {
+    try {
+      const payload = {
+        ...values
+      };
+
+      const response = await fetch("/api/recipe/save", {
+        method: "POST",
+        body: JSON.stringify(values)
+      });
+      const { id } = await response.json();
+      // TODO: Show success snackbar??
+      // TODO: Redirect
+    } catch (error) {
+      console.log(error);
+      // TODO: Show something went wrong
+    }
   };
 
   return (
     <Formik
       initialValues={ INITIAL_VALUES }
       onSubmit={ handleSubmit }
-      validationSchema={ RecipeSchema }
+      validationSchema={ RECIPE_SCHEMA }
       validateOnBlur={ false }
       validateOnChange={ false }
+      initialStatus={ INITIAL_STATUS }
     >
-      {() => <FormikContent />}
+      {() => <PageContent />}
     </Formik>
   );
 }
