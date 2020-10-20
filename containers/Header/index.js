@@ -1,16 +1,18 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
+import dynamic from "next/dynamic";
 import { isMobileOnly } from "react-device-detect";
 import Container from "@material-ui/core/Container";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import { StyledAppBar, StyledToolbar } from "containers/Header/styles";
-import MobileHeader from "containers/Header/Mobile";
-import DesktopHeader from "containers/Header/Desktop";
 import { APP_NAME } from "containers/Header/constants";
 
 import { PaletteContext } from "pages/_app";
 import { UserContext } from "utils/user";
+
+const MobileHeader = dynamic(() => import("containers/Header/Mobile"));
+const DesktopHeader = dynamic(() => import("containers/Header/Desktop"));
 
 /**
  * Header componnent
