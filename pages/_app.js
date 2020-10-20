@@ -15,6 +15,8 @@ import styled, { ThemeProvider } from "styled-components";
 import muiTheme from "theme";
 import { UserProvider } from "utils/user";
 
+const PALETT_TYPE_KEY = "PALETT_TYPE";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -39,7 +41,8 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     const themeType = prefersDarkMode ? "dark" : "light";
-    setPaletteType(themeType);
+    const storedPreference = localStorage.getItem(PALETT_TYPE_KEY);
+    setPaletteType(storedPreference || themeType);
   }, [prefersDarkMode]);
 
   const theme = useMemo(() => {
@@ -48,9 +51,14 @@ function MyApp({ Component, pageProps }) {
     return createdTheme;
   }, [paletteType]);
 
+  const handleUpdatePalette = (type) => {
+    localStorage.setItem(PALETT_TYPE_KEY, type);
+    setPaletteType(type);
+  };
+
   const paletteProviderValue = {
     paletteType,
-    setPaletteType,
+    setPaletteType: handleUpdatePalette,
     isDark
   };
 
@@ -63,34 +71,9 @@ function MyApp({ Component, pageProps }) {
               <CssBaseline />
               <Container>
                 <Head>
+                  <title>Meal Planner</title>
                   <link rel="manifest" href="manifest.json" />
-
-                  <meta name="mobile-web-app-capable" content="yes" />
-                  <meta name="apple-mobile-web-app-capable" content="yes" />
-                  <meta name="application-name" content="Meal Planner" />
-                  <meta name="apple-mobile-web-app-title" content="Meal Planner" />
-                  <meta name="theme-color" content="#607D8B" />
-                  <meta name="msapplication-navbutton-color" content="#607D8B" />
-                  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-                  <meta name="msapplication-starturl" content="/" />
                   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-
-                  <link rel="icon" type="image/png" sizes="48x48" href="images/icons/icon-48x48.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="48x48" href="images/icons/icon-48x48.png" />
-                  <link rel="icon" type="image/png" sizes="72x72" href="images/icons/icon-72x72.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="72x72" href="images/icons/icon-72x72.png" />
-                  <link rel="icon" type="image/png" sizes="96x96" href="images/icons/icon-96x96.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="96x96" href="images/icons/icon-96x96.png" />
-                  <link rel="icon" type="image/png" sizes="144x144" href="images/icons/icon-144x144.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="144x144" href="images/icons/icon-144x144.png" />
-                  <link rel="icon" type="image/png" sizes="168x168" href="images/icons/icon-168x168.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="168x168" href="images/icons/icon-168x168.png" />
-                  <link rel="icon" type="image/png" sizes="192x192" href="images/icons/icon-192x192.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="192x192" href="images/icons/icon-192x192.png" />
-                  <link rel="icon" type="image/png" sizes="256x256" href="images/icons/icon-256x256.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="256x256" href="images/icons/icon-256x256.png" />
-                  <link rel="icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
-                  <link rel="apple-touch-icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
                 </Head>
                 <Component { ...pageProps } />
               </Container>
