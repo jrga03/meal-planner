@@ -110,7 +110,7 @@ function FormikContent() {
   };
 
   async function uploadImage(file) {
-    const uploadingKey = enqueueSnackbar("Uploading photo", { variant: "info" });
+    const uploadingKey = enqueueSnackbar("Uploading photo");
     try {
       setStatus({
         ...status,
