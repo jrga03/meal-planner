@@ -1,6 +1,7 @@
+import auth0 from "utils/auth0";
 import { connectToDatabase } from "utils/mongodb";
 
-export default async function saveRecipe(req, res) {
+export default auth0.requireAuthentication(async function saveRecipe(req, res) {
   try {
     if (!req.body) {
       res.status(406).end("Request body required");
@@ -24,4 +25,4 @@ export default async function saveRecipe(req, res) {
     console.error(error);
     res.status(error.status || 500).end(error.message);
   }
-}
+});
