@@ -4,13 +4,13 @@ import { connectToDatabase } from "utils/mongodb";
 export default auth0.requireAuthentication(async function saveRecipe(req, res) {
   try {
     if (!req.body) {
-      res.status(406).end("Request body required");
+      res.status(406).json({ message: "Request body required" });
       return;
     }
 
     const data = JSON.parse(req.body);
     if (!data || typeof data !== "object") {
-      res.status(406).end("Request body must be in JSON format");
+      res.status(406).json({ message: "Request body must be in JSON format" });
       return;
     }
 
@@ -23,6 +23,6 @@ export default auth0.requireAuthentication(async function saveRecipe(req, res) {
       });
   } catch (error) {
     console.error(error);
-    res.status(error.status || 500).end(error.message);
+    res.status(error.status || 500).json({ message: error.message || "Something went wrong" });
   }
 });
