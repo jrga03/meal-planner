@@ -7,6 +7,7 @@ import FilledInput from "@material-ui/core/FilledInput";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import Chip from "@material-ui/core/Chip";
+import Skeleton from "@material-ui/lab/Skeleton";
 
 function clampHeight(theme) {
   return `clamp(0px, ${100 * (9 / 16)}vw, ${theme.breakpoints.values.sm * (9 / 16)}px)`;
@@ -115,4 +116,19 @@ export const RecipePhoto = styled(CardMedia)`
 export const Tag = styled(Chip)`
   margin-right: 4px;
   margin-bottom: 4px;
+`;
+
+export const SkeletonPhoto = styled(Skeleton)`
+  height: ${({ theme }) => clampHeight(theme)};
+`;
+
+export const SkeletonField = styled(Skeleton)`
+  height: 56px;
+  margin: 4px;
+  margin-top: 8px;
+`;
+
+export const SkeletonDivider = styled(Skeleton)`
+  height: 1px;
+  margin: 16px 0;
 `;

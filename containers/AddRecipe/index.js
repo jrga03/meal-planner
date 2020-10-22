@@ -1,268 +1,41 @@
-import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
-import { Formik, Form, Field, useFormikContext } from "formik";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { Formik, useFormikContext } from "formik";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
-import Card from "@material-ui/core/Card";
-import Typography from "@material-ui/core/Typography";
-import Drawer from "@material-ui/core/Drawer";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import Hidden from "@material-ui/core/Hidden";
-import CameraIcon from "@material-ui/icons/AddAPhoto";
-import GalleryIcon from "@material-ui/icons/PhotoLibrary";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import { isMobileOnly, isMobile, isIOS } from "react-device-detect";
+import { isIOS } from "react-device-detect";
+
+import { SkeletonPhoto, SkeletonField, SkeletonDivider } from "containers/AddRecipe/styles";
 
 // Utilities
-import { fileToBase64Img, compressImage } from "utils/fileHelper";
 import { usePreventRouteChangeIf } from "utils/hooks";
-import { upload } from "utils/cloudinary";
 import { UserContext } from "utils/user";
+import createLoginUrl from "utils/urlHelper";
 
 // Components
 import PageWrapper from "components/PageWrapper";
+import FormikContent from "containers/AddRecipe/Form";
 
-// Containers
+// Constants
 import { INITIAL_VALUES, INITIAL_STATUS, RECIPE_SCHEMA } from "containers/AddRecipe/constants";
-import {
-  TextFieldsContainer,
-  StyledCardActionArea,
-  StyledCardContent,
-  PhotoOverlay,
-  StyledDivider,
-  GenericTextField,
-  RecipePhoto
-} from "containers/AddRecipe/styles";
-import PrepTimes from "containers/AddRecipe/PrepTimes";
-import Ingredients from "containers/AddRecipe/Ingredients";
-import PrepNotes from "containers/AddRecipe/PrepNotes";
-import Directions from "containers/AddRecipe/Directions";
-import MainIngredient from "containers/AddRecipe/MainIngredient";
-import Tags from "containers/AddRecipe/Tags";
 
 // Dynamic components
 const Dialog = dynamic(() => import("@material-ui/core/Dialog"));
 const DialogActions = dynamic(() => import("@material-ui/core/DialogActions"));
 const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
-const Avatar = dynamic(() => import("@material-ui/core/Avatar"));
-const PhotoIcon = dynamic(() => import("@material-ui/icons/PhotoCamera"));
-
-/**
- * FormikContent
- */
-function FormikContent() {
-  const isSmall = useMediaQuery("(max-width:800px)");
-
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [recipePhoto, setRecipePhoto] = useState(null);
-
-  const fileInputRef = useRef(null);
-  const fileCaptureRef = useRef(null);
-
-  const {
-    submitForm,
-    setFieldValue,
-    errors,
-    isSubmitting,
-    isValidating,
-    values,
-    status,
-    setStatus
-  } = useFormikContext();
-  const { uploading } = status;
-
-  const toggleDrawer = (open) => (event) => {
-    if (open && !isMobile && fileInputRef && fileInputRef.current) {
-      fileInputRef.current.click();
-      return;
-    }
-
-    if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
-      return;
-    }
-    setDrawerOpen(open);
-  };
-
-  const handleTakePhoto = (isCapture = false) => () => {
-    setDrawerOpen(false);
-
-    const ref = isCapture ? fileCaptureRef : fileInputRef;
-    if (ref && ref.current) {
-      ref.current.click();
-    }
-  };
-
-  async function uploadImage(file) {
-    try {
-      setStatus({
-        ...status,
-        uploading: true
-      });
-      const compressed = await compressImage(file);
-      const uploaded = await upload(compressed, { folder: "recipes" });
-      const data = await uploaded.json();
-
-      return data.secure_url;
-    } catch (error) {
-      console.log(error);
-      return "";
-    } finally {
-      setStatus({
-        ...status,
-        uploading: false
-      });
-    }
-  }
-
-  const handleInputChange = async (event) => {
-    const file = event?.target?.files?.[0];
-    let image = null;
-
-    if (file) {
-      image = await fileToBase64Img(file);
-      setRecipePhoto(image);
-      const photoUrl = await uploadImage(file);
-      setFieldValue("photo", photoUrl);
-    }
-  };
-
-  return (
-    <>
-      <Drawer anchor="bottom" open={ drawerOpen } onClose={ toggleDrawer(false) }>
-        <List>
-          <ListItem button onClick={ handleTakePhoto(true) }>
-            <ListItemIcon>
-              <CameraIcon />
-            </ListItemIcon>
-            <ListItemText primary="Take photo" />
-          </ListItem>
-          <ListItem button onClick={ handleTakePhoto() }>
-            <ListItemIcon>
-              <GalleryIcon />
-            </ListItemIcon>
-            <ListItemText primary="Choose existing photo" />
-          </ListItem>
-        </List>
-      </Drawer>
-      <Form>
-        <Card square elevation={ 0 }>
-          <StyledCardActionArea onClick={ toggleDrawer(true) } disabled={ isValidating || isSubmitting }>
-            {recipePhoto && (
-              <>
-                <RecipePhoto component="img" image={ recipePhoto || values.photo } title="Recipe photo" />
-                <PhotoOverlay />
-              </>
-            )}
-            <StyledCardContent>
-              {!recipePhoto && (
-                <Avatar>
-                  <PhotoIcon />
-                </Avatar>
-              )}
-              <Typography variant="button">{recipePhoto ? "Change" : "Add"} Photo</Typography>
-            </StyledCardContent>
-          </StyledCardActionArea>
-        </Card>
-        <TextFieldsContainer>
-          <Field name="title">
-            {({ field }) => (
-              <GenericTextField
-                id={ field.name }
-                label="Title"
-                fullWidth
-                variant="filled"
-                error={ !!errors[field.name] }
-                helperText={ errors[field.name] || "" }
-                { ...field }
-              />
-            )}
-          </Field>
-          <Field name="source">
-            {({ field }) => <GenericTextField id={ field.name } label="Source" fullWidth variant="filled" { ...field } />}
-          </Field>
-          <Field name="description">
-            {({ field }) => (
-              <GenericTextField
-                id={ field.name }
-                label="Description"
-                fullWidth
-                multiline
-                rowsMax={ 4 }
-                variant="filled"
-                { ...field }
-              />
-            )}
-          </Field>
-          <StyledDivider />
-
-          <PrepTimes />
-          <StyledDivider />
-
-          <Ingredients />
-          <StyledDivider />
-
-          <PrepNotes />
-          <StyledDivider />
-
-          <MainIngredient />
-          <Tags />
-          <StyledDivider />
-
-          <Directions />
-
-          {!(isMobileOnly || isSmall) && (
-            <>
-              <StyledDivider />
-              <Button
-                color="primary"
-                variant="contained"
-                size="large"
-                onClick={ submitForm }
-                fullWidth
-                disabled={ isValidating || isSubmitting || uploading }
-              >
-                Save Recipe
-              </Button>
-            </>
-          )}
-        </TextFieldsContainer>
-      </Form>
-
-      <Hidden implementation="css" xsUp>
-        <input
-          id="file-input"
-          type="file"
-          accept="image/png, image/jpeg"
-          ref={ fileInputRef }
-          onChange={ handleInputChange }
-        />
-        <input
-          id="file-capture"
-          type="file"
-          accept="image/png, image/jpeg"
-          capture
-          ref={ fileCaptureRef }
-          onChange={ handleInputChange }
-        />
-      </Hidden>
-    </>
-  );
-}
 
 /**
  * PageContent
  */
 function PageContent() {
+  const { user, loading } = useContext(UserContext);
   const router = useRouter();
   const { submitForm, dirty, isSubmitting, isValidating, status } = useFormikContext();
+
   const { uploading } = status;
-  console.log("uploading", uploading);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [discardConfirmed, setDiscardConfirmed] = useState(false);
@@ -283,13 +56,13 @@ function PageContent() {
 
   const handleBeforeUnload = useCallback(
     (event) => {
-      if (dirty) {
+      if (dirty && !loading && user) {
         event.preventDefault();
         event.returnValue = "";
         return event;
       }
     },
-    [dirty]
+    [dirty, user, loading]
   );
 
   // Listen to page navigation using browser
@@ -314,6 +87,47 @@ function PageContent() {
   };
 
   const handleSave = () => submitForm();
+
+  const Content = () => {
+    if (loading) {
+      return (
+        <>
+          <SkeletonPhoto variant="rect" />
+          <SkeletonField variant="rect" />
+          <SkeletonField variant="rect" />
+          <SkeletonField variant="rect" />
+          <SkeletonDivider variant="rect" />
+          <SkeletonField variant="text" width={ 200 } />
+          <SkeletonField variant="rect" />
+          <SkeletonField variant="text" width={ 200 } />
+          <SkeletonField variant="rect" />
+          <SkeletonDivider variant="rect" />
+          <SkeletonField variant="text" width={ 200 } />
+          <SkeletonField variant="rect" />
+        </>
+      );
+    }
+
+    return (
+      <>
+        <FormikContent />
+        {dialogOpen && (
+          <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
+            <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
+
+            <DialogActions>
+              <Button onClick={ handleDialogClose } color="primary">
+                Cancel
+              </Button>
+              <Button onClick={ handleDiscardChanges } color="primary" autoFocus>
+                Discard
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
+      </>
+    );
+  };
 
   return (
     <PageWrapper
@@ -342,21 +156,7 @@ function PageContent() {
       } }
       withFooter={ false }
     >
-      <FormikContent />
-      {dialogOpen && (
-        <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
-          <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
-
-          <DialogActions>
-            <Button onClick={ handleDialogClose } color="primary">
-              Cancel
-            </Button>
-            <Button onClick={ handleDiscardChanges } color="primary" autoFocus>
-              Discard
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+      <Content />
     </PageWrapper>
   );
 }
@@ -365,25 +165,39 @@ function PageContent() {
  * AddRecipe
  */
 function AddRecipe() {
-  const { user } = useContext(UserContext);
-  const handleSubmit = async (values) => {
-    try {
-      const payload = {
-        ...values
-      };
+  const { user, loading } = useContext(UserContext);
+  const router = useRouter();
 
-      const response = await fetch("/api/recipe/save", {
-        method: "POST",
-        body: JSON.stringify(values)
-      });
-      const { id } = await response.json();
-      // TODO: Show success snackbar??
-      // TODO: Redirect
-    } catch (error) {
-      console.log(error);
-      // TODO: Show something went wrong
+  useEffect(() => {
+    if (typeof window !== "undefined" && !loading && !user) {
+      router.push(createLoginUrl("/recipe/add"));
     }
-  };
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSubmit = useCallback(
+    async (values) => {
+      if (user) {
+        try {
+          const payload = {
+            ...values,
+            author: {}
+          };
+
+          const response = await fetch("/api/recipe/save", {
+            method: "POST",
+            body: JSON.stringify(values)
+          });
+          const { id } = await response.json();
+          // TODO: Show success snackbar??
+          // TODO: Redirect
+        } catch (error) {
+          console.log(error);
+          // TODO: Show something went wrong
+        }
+      }
+    },
+    [user]
+  );
 
   return (
     <Formik
