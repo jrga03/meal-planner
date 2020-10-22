@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
-export const UserContext = createContext({ user: null, loading: true });
+export const UserContext = createContext({ user: null, loading: true, logout: () => {} });
 
 export const fetchUser = async () => {
   const res = await fetch("/api/auth/me");
@@ -23,7 +23,16 @@ export const UserProvider = ({ children }) => {
     fetchUserData();
   }, []);
 
-  return <UserContext.Provider value={ user }>{children}</UserContext.Provider>;
+  function logout() {
+    setUser({ user: null, loading: true });
+  }
+
+  const value = {
+    ...user,
+    logout
+  };
+
+  return <UserContext.Provider value={ value }>{children}</UserContext.Provider>;
 };
 
 UserProvider.propTypes = {
