@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import dynamic from "next/dynamic";
 import { Form, Field, useFormikContext } from "formik";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
@@ -19,6 +19,7 @@ import { useSnackbar } from "notistack";
 // Utilities
 import { fileToBase64Img, compressImage } from "utils/fileHelper";
 import { upload } from "utils/cloudinary";
+import { UserContext } from "utils/user";
 
 // Containers
 import {
@@ -55,6 +56,8 @@ function titleCase(str) {
  * FormikContent
  */
 function FormikContent() {
+  const { user, loading } = useContext(UserContext);
+
   const isSmall = useMediaQuery("(max-width:800px)");
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -226,7 +229,7 @@ function FormikContent() {
                 size="large"
                 onClick={ submitForm }
                 fullWidth
-                disabled={ isValidating || isSubmitting || uploading }
+                disabled={ isValidating || isSubmitting || uploading || loading || !user }
               >
                 Save Recipe
               </Button>

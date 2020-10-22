@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
+import PropTypes from "prop-types";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { Formik, useFormikContext } from "formik";
@@ -7,17 +8,18 @@ import IconButton from "@material-ui/core/IconButton";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import { isIOS } from "react-device-detect";
-
-import { SkeletonPhoto, SkeletonField, SkeletonDivider } from "containers/AddRecipe/styles";
+import { useSnackbar } from "notistack";
 
 // Utilities
 import { usePreventRouteChangeIf } from "utils/hooks";
 import { UserContext } from "utils/user";
 import createLoginUrl from "utils/urlHelper";
+import Fetch from "utils/request";
 
 // Components
 import PageWrapper from "components/PageWrapper";
 import FormikContent from "containers/AddRecipe/Form";
+import { SkeletonPhoto, SkeletonField, SkeletonDivider } from "containers/AddRecipe/styles";
 
 // Constants
 import { INITIAL_VALUES, INITIAL_STATUS, RECIPE_SCHEMA } from "containers/AddRecipe/constants";
@@ -30,7 +32,7 @@ const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
 /**
  * PageContent
  */
-function PageContent() {
+function PageContent({ submitted }) {
   const { user, loading } = useContext(UserContext);
   const router = useRouter();
   const { submitForm, dirty, isSubmitting, isValidating, status } = useFormikContext();
@@ -42,7 +44,7 @@ function PageContent() {
   const [preventedRouteUrl, setPreventedUrl] = useState(null);
 
   // Prevent route change if form is dirty
-  usePreventRouteChangeIf(dirty && !discardConfirmed, (url) => {
+  usePreventRouteChangeIf(!submitted && dirty && !discardConfirmed, (url) => {
     setDialogOpen(true);
     setPreventedUrl(url);
   });
@@ -56,13 +58,13 @@ function PageContent() {
 
   const handleBeforeUnload = useCallback(
     (event) => {
-      if (dirty && !loading && user) {
+      if (!submitted && dirty && !loading && user) {
         event.preventDefault();
         event.returnValue = "";
         return event;
       }
     },
-    [dirty, user, loading]
+    [submitted, dirty, loading, user]
   );
 
   // Listen to page navigation using browser
@@ -88,46 +90,7 @@ function PageContent() {
 
   const handleSave = () => submitForm();
 
-  const Content = () => {
-    if (loading) {
-      return (
-        <>
-          <SkeletonPhoto variant="rect" />
-          <SkeletonField variant="rect" />
-          <SkeletonField variant="rect" />
-          <SkeletonField variant="rect" />
-          <SkeletonDivider variant="rect" />
-          <SkeletonField variant="text" width={ 200 } />
-          <SkeletonField variant="rect" />
-          <SkeletonField variant="text" width={ 200 } />
-          <SkeletonField variant="rect" />
-          <SkeletonDivider variant="rect" />
-          <SkeletonField variant="text" width={ 200 } />
-          <SkeletonField variant="rect" />
-        </>
-      );
-    }
-
-    return (
-      <>
-        <FormikContent />
-        {dialogOpen && (
-          <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
-            <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
-
-            <DialogActions>
-              <Button onClick={ handleDialogClose } color="primary">
-                Cancel
-              </Button>
-              <Button onClick={ handleDiscardChanges } color="primary" autoFocus>
-                Discard
-              </Button>
-            </DialogActions>
-          </Dialog>
-        )}
-      </>
-    );
-  };
+  const isLoading = loading || !user;
 
   return (
     <PageWrapper
@@ -148,7 +111,7 @@ function PageContent() {
             disableElevation
             size="small"
             onClick={ handleSave }
-            disabled={ isValidating || isSubmitting || uploading }
+            disabled={ isValidating || isSubmitting || uploading || loading || !user }
           >
             Save
           </Button>
@@ -156,10 +119,48 @@ function PageContent() {
       } }
       withFooter={ false }
     >
-      <Content />
+      {isLoading && (
+        <>
+          <SkeletonPhoto variant="rect" />
+          <SkeletonField variant="rect" />
+          <SkeletonField variant="rect" />
+          <SkeletonField variant="rect" />
+          <SkeletonDivider variant="rect" />
+          <SkeletonField variant="text" width={ 200 } />
+          <SkeletonField variant="rect" />
+          <SkeletonField variant="text" width={ 200 } />
+          <SkeletonField variant="rect" />
+          <SkeletonDivider variant="rect" />
+          <SkeletonField variant="text" width={ 200 } />
+          <SkeletonField variant="rect" />
+        </>
+      )}
+      {!isLoading && (
+        <>
+          <FormikContent />
+          {dialogOpen && (
+            <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
+              <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
+
+              <DialogActions>
+                <Button onClick={ handleDialogClose } color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={ handleDiscardChanges } color="primary" autoFocus>
+                  Discard
+                </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+        </>
+      )}
     </PageWrapper>
   );
 }
+
+PageContent.propTypes = {
+  submitted: PropTypes.bool.isRequired
+};
 
 /**
  * AddRecipe
@@ -167,6 +168,9 @@ function PageContent() {
 function AddRecipe() {
   const { user, loading } = useContext(UserContext);
   const router = useRouter();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !loading && !user) {
@@ -176,27 +180,42 @@ function AddRecipe() {
 
   const handleSubmit = useCallback(
     async (values) => {
-      if (user) {
-        try {
-          const payload = {
-            ...values,
-            author: {}
-          };
+      const savingKey = enqueueSnackbar("Saving...", { persist: true });
 
-          const response = await fetch("/api/recipe/save", {
-            method: "POST",
-            body: JSON.stringify(values)
-          });
-          const { id } = await response.json();
-          // TODO: Show success snackbar??
-          // TODO: Redirect
-        } catch (error) {
-          console.log(error);
-          // TODO: Show something went wrong
+      try {
+        const payload = {
+          ...values,
+          author: {
+            id: user.user_id,
+            name: user.name,
+            email: user.email,
+            nickname: user.given_name || user.nickname
+          }
+        };
+
+        const { id } = await Fetch("/api/recipe/save", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        setSubmitted(true);
+        closeSnackbar(savingKey);
+
+        if (id) {
+          router.push(`/recipe/${id}`);
         }
+      } catch (error) {
+        let message = "Something went wrong";
+        if (error.response) {
+          const response = await error.response.json();
+          message = response.message;
+        }
+
+        closeSnackbar(savingKey);
+        enqueueSnackbar(message, { variant: "error" });
       }
     },
-    [user]
+    [user, enqueueSnackbar, closeSnackbar, router]
   );
 
   return (
@@ -208,7 +227,7 @@ function AddRecipe() {
       validateOnChange={ false }
       initialStatus={ INITIAL_STATUS }
     >
-      {() => <PageContent />}
+      {() => <PageContent submitted={ submitted } />}
     </Formik>
   );
 }
