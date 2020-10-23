@@ -1,88 +1,22 @@
 import React from "react";
+import useSWR from "swr";
 
+// Utilities
+import Fetch from "utils/request";
+
+// Components
 import PageWrapper from "components/PageWrapper";
 import RecipeList from "components/RecipeList";
 
-import { Wrapper } from "./styles";
+import { Wrapper } from "containers/Recipes/styles";
 
 function Recipes() {
-  const recipes = [
-    {
-      id: "1",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "2",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "3",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "4",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "5",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "6",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "7",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "8",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "9",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "10",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "11",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "12",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "13",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    },
-    {
-      id: "14",
-      name: "Pork Sinigang",
-      photo: "https://res.cloudinary.com/what-to-cook/image/upload/c_limit,w_240/v1576648516/categories/Pork_mqkgrx.png"
-    }
-  ];
+  const { data } = useSWR("/api/recipes?hello=world", Fetch);
 
   return (
     <PageWrapper>
       <Wrapper>
-        <RecipeList recipes={ recipes } />
+        <RecipeList recipes={ data?.recipes } loading={ !data } />
       </Wrapper>
     </PageWrapper>
   );

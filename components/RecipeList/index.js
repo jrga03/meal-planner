@@ -6,7 +6,7 @@ import Fade from "@material-ui/core/Fade";
 
 import { LoaderWrapper } from "pages/_app";
 import RecipeCard from "components/RecipeCard";
-import { RECIPE_CARD_GUTTER_SIZE } from "components/RecipeCard/styles";
+import { RECIPE_CARD_GUTTER_SIZE, SkeletonRecipeCard } from "components/RecipeCard/styles";
 import { useWindowSize, useHeaderHeight } from "utils/hooks";
 
 const MemoizedRecipeCardItem = memo(RecipeCard, areEqual);
@@ -27,7 +27,7 @@ const innerElementType = forwardRef(({ style, ...rest }, ref) => (
 /**
  * RecipeList component
  */
-function RecipeList({ recipes }) {
+function RecipeList({ recipes, loading }) {
   const windowSize = useWindowSize();
   const headerHeight = useHeaderHeight();
 
@@ -49,6 +49,17 @@ function RecipeList({ recipes }) {
    */
   function getKey(index, recipes) {
     return recipes[index].id;
+  }
+
+  console.log( recipes );
+  if (loading) {
+    return (
+      <>
+        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
+        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
+        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
+      </>
+    )
   }
 
   return recipes.length === 0 ? (
@@ -95,7 +106,8 @@ RecipeList.propTypes = {
       name: PropTypes.string,
       photo: PropTypes.string
     })
-  ).isRequired
+  ).isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 export default RecipeList;
