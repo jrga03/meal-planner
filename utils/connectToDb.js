@@ -23,11 +23,5 @@ export default async function connectToDatabase() {
     useUnifiedTopology: true
   });
 
-  mongoose.connection
-    .on("error", (error) => console.log("Error connecting to MongoLab:", error))
-    .once("open", () => {
-      isConnected = true;
-    });
-
   isConnected = db.connections[0].readyState;
 }
