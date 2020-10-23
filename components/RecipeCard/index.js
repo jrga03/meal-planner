@@ -15,7 +15,7 @@ function RecipeCard({ _id, title, photo, style }) {
           <StyledCardMedia image={ thumbnail } title={ title } />
         ) : (
           <PhotoPlaceholder>
-            <Typography variant="overline">No Photo</Typography>
+            <Typography variant="caption" color="textSecondary">NO PHOTO</Typography>
           </PhotoPlaceholder>
         )}
         <StyledCardContent>
@@ -35,5 +35,9 @@ RecipeCard.propTypes = {
   photo: PropTypes.string,
   style: PropTypes.object.isRequired
 };
+
+RecipeCard.defaultProps = {
+  photo: ""
+}
 
 export default RecipeCard;
