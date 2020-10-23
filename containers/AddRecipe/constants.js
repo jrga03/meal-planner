@@ -28,7 +28,7 @@ export const INITIAL_STATUS = { uploading: false };
 export const RECIPE_SCHEMA = Yup.object().shape({
   photo: Yup.string(),
   title: Yup.string().min(3, "Title too short!").max(50, "Title too long!").required("Required"),
-  source: Yup.string(),
+  source: Yup.string().url("Source must be a URL"),
   description: Yup.string(),
   "prep-hours": Yup.string(),
   "prep-minutes": Yup.string(),
