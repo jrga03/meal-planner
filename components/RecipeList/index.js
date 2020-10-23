@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { FixedSizeList as List, areEqual } from "react-window";
 import Typography from "@material-ui/core/Typography";
 import Fade from "@material-ui/core/Fade";
+import { isMobileOnly } from "react-device-detect";
 
 import { LoaderWrapper } from "pages/_app";
 import RecipeCard from "components/RecipeCard";
@@ -30,14 +31,15 @@ const innerElementType = forwardRef(({ style, ...rest }, ref) => (
 function RecipeList({ recipes, loading }) {
   const windowSize = useWindowSize();
   const headerHeight = useHeaderHeight();
+  const footerHeight = isMobileOnly ? 0 : 52;
 
   const [listHeight, setListHeight] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
 
   useEffect(() => {
-    setListHeight(windowSize.height - headerHeight);
+    setListHeight(windowSize.height - headerHeight - footerHeight);
     setItemWidth(Math.min(windowSize.width, 600) - RECIPE_CARD_GUTTER_SIZE * 2);
-  }, [windowSize, headerHeight]);
+  }, [windowSize, headerHeight, footerHeight]);
 
   const computedItemHeight = itemWidth * 0.2;
   const itemHeight = Math.min(Math.max(computedItemHeight, 75), 120); // Clamp itemSize
@@ -51,10 +53,12 @@ function RecipeList({ recipes, loading }) {
     return recipes[index].id;
   }
 
-  console.log( recipes );
   if (loading) {
     return (
       <>
+        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
+        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
+        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
         <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
         <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
         <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
