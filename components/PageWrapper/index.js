@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Link from "next/link";
 import MuiLink from "@material-ui/core/Link";
+import { isMobileOnly } from "react-device-detect";
 
 import { ContentWrapper, FooterWrapper, StyledSpacer } from "components/PageWrapper/styles";
 import Header from "containers/Header";
@@ -49,7 +50,7 @@ PageWrapper.propTypes = {
 
 PageWrapper.defaultProps = {
   withHeader: true,
-  withFooter: true,
+  withFooter: !isMobileOnly,
   HeaderProps: {},
   maxWidth: "lg",
   fixed: false,

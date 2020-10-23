@@ -14,6 +14,7 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Switch from "@material-ui/core/Switch";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
+import MuiLink from "@material-ui/core/Link";
 import Skeleton from "@material-ui/lab/Skeleton";
 import MenuIcon from "@material-ui/icons/Menu";
 import DarkModeIcon from "@material-ui/icons/NightsStay";
@@ -173,6 +174,21 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
               <ListItemSecondaryAction>
                 <Switch color="primary" edge="end" checked={ isDark } onChange={ handleToggle(!isDark) } />
               </ListItemSecondaryAction>
+            </ListItem>
+          </StyledList>
+          <StyledList>
+            <ListItem>
+              <Link href="/privacy-policy" passHref>
+                <MuiLink color="textSecondary" display="inline">
+                  Privacy
+                </MuiLink>
+              </Link>
+              <SpacerGrow $amount={ 2 } />
+              <Link href="/terms-and-conditions" passHref>
+                <MuiLink color="textSecondary" display="inline">
+                  Terms
+                </MuiLink>
+              </Link>
             </ListItem>
           </StyledList>
           <SpacerGrow />
