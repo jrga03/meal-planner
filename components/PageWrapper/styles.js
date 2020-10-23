@@ -5,6 +5,8 @@ import { Spacer } from "containers/Header/styles";
 export const ContentWrapper = styled(Container)`
   flex-grow: 1;
   padding-top: 56px;
+  padding-left: 0;
+  padding-right: 0;
 
   @media screen and (orientation: landscape) {
     padding-top: 48px;
