@@ -11,6 +11,8 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Avatar from "@material-ui/core/Avatar";
 import OutdoorGrillIcon from "@material-ui/icons/OutdoorGrill";
 import TodayIcon from "@material-ui/icons/Today";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import Skeleton from "@material-ui/lab/Skeleton";
 import PopupState, { bindPopover, bindHover } from "material-ui-popup-state";
 import Popover from "material-ui-popup-state/HoverPopover";
@@ -68,6 +70,7 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
                   size="large"
                   color="primary"
                   startIcon={ buttonIcons[title] }
+                  endIcon={ popupState.isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
                   { ...bindHover(popupState) }
                 >
                   {title}
