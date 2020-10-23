@@ -3,6 +3,7 @@ import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
+import Skeleton from "@material-ui/lab/Skeleton";
 
 export const RECIPE_CARD_GUTTER_SIZE = 4;
 
@@ -17,9 +18,19 @@ export const StyledCard = styled(Card)`
   margin-bottom: 0;
 `;
 
+const photoWidth = "20%";
+
 export const StyledCardMedia = styled(CardMedia)`
-  width: 20%;
+  width: ${photoWidth};
   object-fit: cover;
+`;
+
+export const PhotoPlaceholder = styled.div`
+  width: ${photoWidth};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #cecece;
 `;
 
 export const StyledCardContent = styled(CardContent)`
@@ -37,4 +48,8 @@ export const RecipeTitle = styled(Typography)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+export const SkeletonRecipeCard = styled(Skeleton)`
+  margin: ${RECIPE_CARD_GUTTER_SIZE}px 0;
 `;

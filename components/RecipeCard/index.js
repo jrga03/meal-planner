@@ -1,17 +1,26 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Link from "next/link";
+import Typography from "@material-ui/core/Typography";
 
-import { StyledLink, StyledCard, StyledCardMedia, StyledCardContent, RecipeTitle } from "./styles";
+import { StyledLink, StyledCard, StyledCardMedia, StyledCardContent, RecipeTitle, PhotoPlaceholder } from "./styles";
 
-function RecipeCard({ id, name, photo, style }) {
+function RecipeCard({ _id, title, photo, style }) {
+  const thumbnail = photo.replace("/image/upload", "/image/upload/t_media_lib_thumb");
+
   return (
-    <Link href={ `/recipe/${id}` } passHref>
+    <Link href={ `/recipe/${_id}` } passHref>
       <StyledCard style={ style } component={ StyledLink }>
-        <StyledCardMedia image={ photo } title={ name } />
+        {thumbnail ? (
+          <StyledCardMedia image={ thumbnail } title={ title } />
+        ) : (
+          <PhotoPlaceholder>
+            <Typography variant="overline">No Photo</Typography>
+          </PhotoPlaceholder>
+        )}
         <StyledCardContent>
           <RecipeTitle component="span" variant="body1" color="textPrimary">
-            {name}
+            {title}
           </RecipeTitle>
         </StyledCardContent>
       </StyledCard>
@@ -20,9 +29,10 @@ function RecipeCard({ id, name, photo, style }) {
 }
 
 RecipeCard.propTypes = {
-  id: PropTypes.string.isRequired,
+  _id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  photo: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  photo: PropTypes.string,
   style: PropTypes.object.isRequired
 };
 
