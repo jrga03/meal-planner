@@ -1,5 +1,8 @@
 import auth0 from "utils/auth0";
-import { connectToDatabase } from "utils/mongodb";
+import connectToDatabase from "utils/connectToDb";
+import Recipe from "models/Recipe";
+
+connectToDatabase();
 
 export default auth0.requireAuthentication(async function saveRecipe(req, res) {
   try {
@@ -14,13 +17,8 @@ export default auth0.requireAuthentication(async function saveRecipe(req, res) {
       return;
     }
 
-    const { db } = await connectToDatabase();
-    await db
-      .collection("recipes")
-      .insertOne(data)
-      .then((result) => {
-        res.status(200).json({ id: result.insertedId });
-      });
+    const recipe = await new Recipe(data).save();
+    res.status(200).json({ id: recipe._id });
   } catch (error) {
     console.error(error);
     res.status(error.status || 500).json({ message: error.message || "Something went wrong" });
