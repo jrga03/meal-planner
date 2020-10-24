@@ -13,7 +13,7 @@ import { useSnackbar } from "notistack";
 // Utilities
 import { usePreventRouteChangeIf } from "utils/hooks";
 import { UserContext } from "utils/user";
-import createLoginUrl from "utils/urlHelper";
+import { createLoginUrl } from "utils/urlHelper";
 import Fetch from "utils/request";
 
 // Components
