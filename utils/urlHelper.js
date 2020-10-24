@@ -7,7 +7,7 @@ export function createLoginUrl(redirectTo) {
 
 export function createAddRecipeUrl(url) {
   if (url) {
-    return `/recipe/add?import=${encodeURIComponent(url)}`;
+    return `/recipe/add?importUrl=${encodeURIComponent(url)}`;
   }
   return `/recipe/add`;
 }
