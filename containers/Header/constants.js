@@ -22,8 +22,7 @@ export const NAVIGATION_ITEMS = [
       },
       {
         Icon: (props) => <AddCircleIcon { ...props } />,
-        primary: "Add a Recipe",
-        href: "/recipe/add"
+        primary: "Add a Recipe"
       }
     ]
   },
