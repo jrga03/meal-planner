@@ -174,7 +174,7 @@ function AddRecipe() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && !loading && !user) {
-      router.push(createLoginUrl("/recipe/add"));
+      router.push(createLoginUrl(router.asPath));
     }
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
