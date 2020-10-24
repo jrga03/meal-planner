@@ -23,7 +23,7 @@ import Search from "@material-ui/icons/Search";
 import { DrawerContentContainer, StyledList, StyledDivider, SpacerGrow } from "containers/Header/styles";
 import { NAVIGATION_ITEMS } from "containers/Header/constants";
 
-import createLoginUrl from "utils/urlHelper";
+import { createLoginUrl } from "utils/urlHelper";
 
 /**
  * ListItem with Link
@@ -33,16 +33,22 @@ function ListItemLink({ Icon, primary, href, onClick }) {
   const selected = router.asPath === href;
   const color = selected ? "primary" : "inherit";
 
+  const component = (
+    <ListItem button selected={ selected } onClick={ onClick }>
+      <ListItemIcon>
+        <Icon color={ color } />
+      </ListItemIcon>
+      <ListItemText primary={ primary } primaryTypographyProps={ { color } } />
+    </ListItem>
+  );
+
+  if (!href) {
+    return <li>{component}</li>;
+  }
+
   return (
     <li>
-      <Link href={ href }>
-        <ListItem button selected={ selected } onClick={ onClick }>
-          <ListItemIcon>
-            <Icon color={ color } />
-          </ListItemIcon>
-          <ListItemText primary={ primary } primaryTypographyProps={ { color } } />
-        </ListItem>
-      </Link>
+      <Link href={ href }>{component}</Link>
     </li>
   );
 }
@@ -76,7 +82,7 @@ CustomHeader.propTypes = {
 /**
  * Header for mobile devices
  */
-function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode }) {
+function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode, onClickAddRecipe }) {
   const router = useRouter();
   const [drawerStatus, setDrawerStatus] = useState(false);
 
@@ -94,6 +100,13 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
       setDrawerStatus(!!state);
     };
   }
+
+  const handleListItemClick = (href) => () => {
+    setDrawerStatus(false);
+    if (!href) {
+      onClickAddRecipe();
+    }
+  };
 
   /**
    * Handles toggling of dark mode
@@ -159,7 +172,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode 
             <React.Fragment key={ title }>
               <StyledList component="nav" subheader={ <ListSubheader>{title}</ListSubheader> }>
                 {items.map((item) => (
-                  <ListItemLink key={ item.primary } onClick={ handleToggleDrawer(false) } { ...item } />
+                  <ListItemLink key={ item.primary } onClick={ handleListItemClick(item.href) } { ...item } />
                 ))}
               </StyledList>
               <StyledDivider variant="middle" />
@@ -224,7 +237,8 @@ MobileHeader.propTypes = {
   auth: PropTypes.shape({
     user: PropTypes.object,
     loading: PropTypes.bool
-  }).isRequired
+  }).isRequired,
+  onClickAddRecipe: PropTypes.func.isRequired
 };
 
 MobileHeader.defaultProps = {

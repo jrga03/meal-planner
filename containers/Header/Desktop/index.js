@@ -28,14 +28,48 @@ import {
 
 import { APP_NAME, NAVIGATION_ITEMS } from "containers/Header/constants";
 
-import createLoginUrl from "utils/urlHelper";
+import { createLoginUrl } from "utils/urlHelper";
+
+function HeaderSubItem({ primary, href, popupStateClose, onClickAddRecipe }) {
+  const router = useRouter();
+  const isSelected = (href) => router.asPath === href;
+
+  const handleClick = () => {
+    popupStateClose();
+    if (!href) {
+      onClickAddRecipe();
+    }
+  };
+
+  const component = (
+    <ListItem button onClick={ handleClick } selected={ isSelected(href) }>
+      <ListItemText primary={ primary } primaryTypographyProps={ { color: isSelected(href) ? "primary" : "inherit" } } />
+    </ListItem>
+  );
+
+  if (!href) {
+    return component;
+  }
+
+  return (
+    <Link key={ href } href={ href }>
+      {component}
+    </Link>
+  );
+}
+
+HeaderSubItem.propTypes = {
+  primary: PropTypes.string,
+  href: PropTypes.string,
+  popupStateClose: PropTypes.func,
+  onClickAddRecipe: PropTypes.func
+};
 
 /**
  * Header for desktop
  */
-function DesktopHeader({ auth, isDark, setPaletteType }) {
+function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
   const router = useRouter();
-  const isSelected = (href) => router.asPath === href;
 
   const buttonIcons = {
     Cook: <OutdoorGrillIcon />,
@@ -88,14 +122,13 @@ function DesktopHeader({ auth, isDark, setPaletteType }) {
                 >
                   <List component="nav">
                     {items.map(({ primary, href }) => (
-                      <Link key={ href } href={ href }>
-                        <ListItem button onClick={ popupState.close } selected={ isSelected(href) }>
-                          <ListItemText
-                            primary={ primary }
-                            primaryTypographyProps={ { color: isSelected(href) ? "primary" : "inherit" } }
-                          />
-                        </ListItem>
-                      </Link>
+                      <HeaderSubItem
+                        key={ href }
+                        primary={ primary }
+                        href={ href }
+                        popupStateClose={ popupState.close }
+                        onClickAddRecipe={ onClickAddRecipe }
+                      />
                     ))}
                   </List>
                 </Popover>
@@ -163,7 +196,8 @@ DesktopHeader.propTypes = {
   auth: PropTypes.shape({
     user: PropTypes.object,
     loading: PropTypes.bool
-  }).isRequired
+  }).isRequired,
+  onClickAddRecipe: PropTypes.func.isRequired
 };
 
 export default DesktopHeader;
