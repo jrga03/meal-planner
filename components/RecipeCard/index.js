@@ -30,7 +30,6 @@ function RecipeCard({ _id, title, photo, style }) {
 
 RecipeCard.propTypes = {
   _id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   photo: PropTypes.string,
   style: PropTypes.object.isRequired
