@@ -102,3 +102,10 @@ export const TAGS_OPTIONS = [
   { label: "Soup", value: "Soup" },
   { label: "Steamed", value: "Steamed" }
 ];
+
+export const IMPORT_STATUSES = {
+  NONE: "none",
+  UNFETCHED: "unfetched",
+  FETCHING: "fetching",
+  DONE: "done"
+}

@@ -12,7 +12,7 @@ function MainIngredient() {
       {({ field }) => (
         <GenericTextField
           id={ field.name }
-          label="Main Ingredient"
+          label="Category"
           fullWidth
           select
           SelectProps={ { native: true } }
