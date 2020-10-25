@@ -123,7 +123,7 @@ function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
                   <List component="nav">
                     {items.map(({ primary, href }) => (
                       <HeaderSubItem
-                        key={ href }
+                        key={ href || primary }
                         primary={ primary }
                         href={ href }
                         popupStateClose={ popupState.close }
