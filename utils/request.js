@@ -23,6 +23,21 @@ function parseJSON(response) {
 }
 
 /**
+ * Parse error message from error object
+ * @param {object} [error] - Error object
+ * @param {string} [string] - Fallback error message
+ * @returns {string} Error message
+ */
+export async function getErrorMessage(error = {}, fallbackMessage = "Something went wrong") {
+  let message = fallbackMessage;
+  if (error.response) {
+    const response = await error.response.json();
+    message = response.message;
+  }
+  return message;
+}
+
+/**
  * Requests a URL, returning a promise
  * @param {string} url - The URL we want to request
  * @param {object} [options] - The options we want to pass to "fetch"
