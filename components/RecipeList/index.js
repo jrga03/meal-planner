@@ -50,7 +50,7 @@ function RecipeList({ recipes, loading }) {
    * @param {object[]} data - Item list
    */
   function getKey(index, recipes) {
-    return recipes[index].id;
+    return recipes[index]._id;
   }
 
   if (loading) {
@@ -106,7 +106,7 @@ function RecipeList({ recipes, loading }) {
 RecipeList.propTypes = {
   recipes: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string,
+      _id: PropTypes.string,
       name: PropTypes.string,
       photo: PropTypes.string
     })
