@@ -11,3 +11,10 @@ export function createAddRecipeUrl(url) {
   }
   return `/recipe/add`;
 }
+
+export function createApiImportRecipeUrl(url) {
+  if (url) {
+    return `/api/recipe/import?url=${encodeURIComponent(url)}`;
+  }
+  return `/api/recipe/import`;
+}
