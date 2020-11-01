@@ -13,8 +13,8 @@ import { useSnackbar } from "notistack";
 // Utilities
 import { usePreventRouteChangeIf } from "utils/hooks";
 import { UserContext } from "utils/user";
-import { createLoginUrl } from "utils/urlHelper";
-import Fetch from "utils/request";
+import { createLoginUrl, createApiImportRecipeUrl } from "utils/urlHelper";
+import Fetch, { getErrorMessage } from "utils/request";
 
 // Components
 import PageWrapper from "components/PageWrapper";
@@ -22,7 +22,7 @@ import FormikContent from "containers/AddRecipe/Form";
 import { SkeletonPhoto, SkeletonField, SkeletonDivider } from "containers/AddRecipe/styles";
 
 // Constants
-import { INITIAL_VALUES, INITIAL_STATUS, RECIPE_SCHEMA } from "containers/AddRecipe/constants";
+import { INITIAL_VALUES, INITIAL_STATUS, RECIPE_SCHEMA, IMPORT_STATUSES } from "containers/AddRecipe/constants";
 
 // Dynamic components
 const Dialog = dynamic(() => import("@material-ui/core/Dialog"));
@@ -32,7 +32,7 @@ const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
 /**
  * PageContent
  */
-function PageContent({ submitted }) {
+function PageContent({ submitted, importStatus }) {
   const { user, loading } = useContext(UserContext);
   const router = useRouter();
   const { submitForm, dirty, isSubmitting, isValidating, status } = useFormikContext();
@@ -90,7 +90,8 @@ function PageContent({ submitted }) {
 
   const handleSave = () => submitForm();
 
-  const isLoading = loading || !user;
+  const isLoading =
+    loading || !user || importStatus === IMPORT_STATUSES.FETCHING || importStatus === IMPORT_STATUSES.UNFETCHED;
 
   return (
     <PageWrapper
@@ -159,7 +160,8 @@ function PageContent({ submitted }) {
 }
 
 PageContent.propTypes = {
-  submitted: PropTypes.bool.isRequired
+  submitted: PropTypes.bool.isRequired,
+  importStatus: PropTypes.string.isRequired
 };
 
 /**
@@ -170,13 +172,55 @@ function AddRecipe() {
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
+  const { importUrl } = router.query;
+
+  const [importStatus, setImportStatus] = useState(IMPORT_STATUSES.UNFETCHED);
   const [submitted, setSubmitted] = useState(false);
+  const [initialValues, setInitialValues] = useState(INITIAL_VALUES);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !loading && !user) {
       router.push(createLoginUrl(router.asPath));
     }
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setImportStatus(importUrl ? IMPORT_STATUSES.UNFETCHED : IMPORT_STATUSES.NONE);
+  }, [importUrl]);
+
+  /**
+   * If `importUrl` exists, get recipe data from URL
+   */
+  useEffect(() => {
+    if (importUrl && (importStatus === IMPORT_STATUSES.FETCHING || importStatus === IMPORT_STATUSES.UNFETCHED)) {
+      enqueueSnackbar("Fetching recipe data...", {
+        key: "fetching",
+        preventDuplicate: true
+      });
+    }
+
+    async function getUrlData() {
+      setImportStatus(IMPORT_STATUSES.FETCHING);
+      try {
+        const { data } = await Fetch(createApiImportRecipeUrl(importUrl));
+        setInitialValues(data);
+
+        closeSnackbar("fetching");
+        enqueueSnackbar("Import success!", { variant: "success", preventDuplicate: true });
+        setImportStatus(IMPORT_STATUSES.DONE);
+      } catch (error) {
+        const message = await getErrorMessage(error);
+
+        closeSnackbar("fetching");
+        enqueueSnackbar(message, { variant: "error" });
+        setImportStatus(IMPORT_STATUSES.NONE);
+      }
+    }
+
+    if (importUrl && user && importStatus === IMPORT_STATUSES.UNFETCHED) {
+      getUrlData();
+    }
+  }, [user, importUrl, importStatus, enqueueSnackbar, closeSnackbar]);
 
   const handleSubmit = useCallback(
     async (values) => {
@@ -205,12 +249,7 @@ function AddRecipe() {
           router.push(`/recipe/${id}`);
         }
       } catch (error) {
-        let message = "Something went wrong";
-        if (error.response) {
-          const response = await error.response.json();
-          message = response.message;
-        }
-
+        const message = await getErrorMessage(error);
         closeSnackbar(savingKey);
         enqueueSnackbar(message, { variant: "error" });
       }
@@ -220,14 +259,15 @@ function AddRecipe() {
 
   return (
     <Formik
-      initialValues={ INITIAL_VALUES }
+      initialValues={ initialValues }
       onSubmit={ handleSubmit }
       validationSchema={ RECIPE_SCHEMA }
       validateOnBlur={ false }
       validateOnChange={ false }
       initialStatus={ INITIAL_STATUS }
+      enableReinitialize
     >
-      {() => <PageContent submitted={ submitted } />}
+      {() => <PageContent submitted={ submitted } importStatus={ importStatus } />}
     </Formik>
   );
 }
