@@ -152,24 +152,26 @@ function FormikContent() {
     }
   };
 
+  const photo = recipePhoto || values.photo;
+
   return (
     <>
       <Form>
         <Card square elevation={ 0 }>
           <StyledCardActionArea onClick={ toggleDrawer(true) } disabled={ isValidating || isSubmitting }>
-            {recipePhoto && (
+            {photo && (
               <>
-                <RecipePhoto component="img" image={ recipePhoto || values.photo } title="Recipe photo" />
+                <RecipePhoto component="img" image={ photo } title="Recipe photo" />
                 <PhotoOverlay />
               </>
             )}
             <StyledCardContent>
-              {!recipePhoto && (
+              {!photo && (
                 <Avatar>
                   <PhotoIcon />
                 </Avatar>
               )}
-              <Typography variant="button">{recipePhoto ? "Change" : "Add"} Photo</Typography>
+              <Typography variant="button">{photo ? "Change" : "Add"} Photo</Typography>
             </StyledCardContent>
           </StyledCardActionArea>
         </Card>
