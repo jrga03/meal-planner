@@ -25,10 +25,10 @@ const theme = (type) => ({
   palette: {
     type,
     primary: {
-      main: "#388e3c"
+      main: "#90a4ae"
     },
     secondary: {
-      main: "#757575"
+      main: "#9e9e9e"
     }
   }
 });
