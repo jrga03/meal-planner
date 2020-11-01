@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
+import PropTypes from "prop-types";
 import dynamic from "next/dynamic";
 import { Form, Field, useFormikContext } from "formik";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
@@ -17,8 +18,7 @@ import { isMobileOnly, isMobile } from "react-device-detect";
 import { useSnackbar } from "notistack";
 
 // Utilities
-import { fileToBase64Img, compressImage } from "utils/fileHelper";
-import { upload } from "utils/cloudinary";
+import { fileToBase64Img } from "utils/fileHelper";
 import { UserContext } from "utils/user";
 
 // Containers
@@ -55,11 +55,11 @@ function titleCase(str) {
 /**
  * FormikContent
  */
-function FormikContent() {
+function FormikContent({ setPhotoFile }) {
   const { user, loading } = useContext(UserContext);
 
   const isSmall = useMediaQuery("(max-width:800px)");
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [recipePhoto, setRecipePhoto] = useState(null);
@@ -67,23 +67,14 @@ function FormikContent() {
   const fileInputRef = useRef(null);
   const fileCaptureRef = useRef(null);
 
-  const {
-    submitForm,
-    setFieldValue,
-    errors,
-    isSubmitting,
-    isValidating,
-    values,
-    status,
-    setStatus
-  } = useFormikContext();
-  const { uploading } = status;
+  const { submitForm, errors, isSubmitting, isValid, values } = useFormikContext();
 
   useEffect(() => {
     const errorKeys = Object.keys(errors);
     if (errorKeys.length) {
       errorKeys.forEach((key) => {
         enqueueSnackbar(`${titleCase(key)}: ${errors[key]}`, {
+          key,
           variant: "error",
           preventDuplicate: true
         });
@@ -112,34 +103,6 @@ function FormikContent() {
     }
   };
 
-  async function uploadImage(file) {
-    const uploadingKey = enqueueSnackbar("Uploading photo");
-    try {
-      setStatus({
-        ...status,
-        uploading: true
-      });
-      const compressed = await compressImage(file);
-      const uploaded = await upload(compressed, { folder: "recipes" });
-      const data = await uploaded.json();
-
-      closeSnackbar(uploadingKey);
-      return data.secure_url;
-    } catch (error) {
-      enqueueSnackbar("Upload failed. Try again!", { variant: "error" });
-
-      console.log(error);
-      return "";
-    } finally {
-      enqueueSnackbar("Upload success!", { variant: "success" });
-
-      setStatus({
-        ...status,
-        uploading: false
-      });
-    }
-  }
-
   const handleInputChange = async (event) => {
     const file = event?.target?.files?.[0];
     let image = null;
@@ -147,8 +110,7 @@ function FormikContent() {
     if (file) {
       image = await fileToBase64Img(file);
       setRecipePhoto(image);
-      const photoUrl = await uploadImage(file);
-      setFieldValue("photo", photoUrl);
+      setPhotoFile(file);
     }
   };
 
@@ -158,7 +120,7 @@ function FormikContent() {
     <>
       <Form>
         <Card square elevation={ 0 }>
-          <StyledCardActionArea onClick={ toggleDrawer(true) } disabled={ isValidating || isSubmitting }>
+          <StyledCardActionArea onClick={ toggleDrawer(true) } disabled={ isSubmitting }>
             {photo && (
               <>
                 <RecipePhoto component="img" image={ photo } title="Recipe photo" />
@@ -231,7 +193,7 @@ function FormikContent() {
                 size="large"
                 onClick={ submitForm }
                 fullWidth
-                disabled={ isValidating || isSubmitting || uploading || loading || !user }
+                disabled={ !isValid || isSubmitting || loading || !user }
               >
                 Save Recipe
               </Button>
@@ -277,5 +239,9 @@ function FormikContent() {
     </>
   );
 }
+
+FormikContent.propTypes = {
+  setPhotoFile: PropTypes.func.isRequired
+};
 
 export default FormikContent;

@@ -23,8 +23,6 @@ export const INITIAL_VALUES = {
   tags: []
 };
 
-export const INITIAL_STATUS = { uploading: false };
-
 export const RECIPE_SCHEMA = Yup.object().shape({
   photo: Yup.string(),
   title: Yup.string().min(3, "Title too short!").max(50, "Title too long!").required("Required"),

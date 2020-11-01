@@ -14,6 +14,8 @@ import { useSnackbar } from "notistack";
 import { usePreventRouteChangeIf } from "utils/hooks";
 import { UserContext } from "utils/user";
 import { createLoginUrl, createApiImportRecipeUrl } from "utils/urlHelper";
+import { compressImage } from "utils/fileHelper";
+import { upload } from "utils/cloudinary";
 import Fetch, { getErrorMessage } from "utils/request";
 
 // Components
@@ -22,7 +24,7 @@ import FormikContent from "containers/AddRecipe/Form";
 import { SkeletonPhoto, SkeletonField, SkeletonDivider } from "containers/AddRecipe/styles";
 
 // Constants
-import { INITIAL_VALUES, INITIAL_STATUS, RECIPE_SCHEMA, IMPORT_STATUSES } from "containers/AddRecipe/constants";
+import { INITIAL_VALUES, RECIPE_SCHEMA, IMPORT_STATUSES } from "containers/AddRecipe/constants";
 
 // Dynamic components
 const Dialog = dynamic(() => import("@material-ui/core/Dialog"));
@@ -32,12 +34,10 @@ const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
 /**
  * PageContent
  */
-function PageContent({ submitted, importStatus }) {
+function PageContent({ submitted, importStatus, setPhotoFile }) {
   const { user, loading } = useContext(UserContext);
   const router = useRouter();
-  const { submitForm, dirty, isSubmitting, isValidating, status } = useFormikContext();
-
-  const { uploading } = status;
+  const { submitForm, dirty, isSubmitting, isValid } = useFormikContext();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [discardConfirmed, setDiscardConfirmed] = useState(false);
@@ -88,8 +88,6 @@ function PageContent({ submitted, importStatus }) {
     }
   };
 
-  const handleSave = () => submitForm();
-
   const isLoading =
     loading || !user || importStatus === IMPORT_STATUSES.FETCHING || importStatus === IMPORT_STATUSES.UNFETCHED;
 
@@ -109,10 +107,9 @@ function PageContent({ submitted, importStatus }) {
           <Button
             color="secondary"
             variant="contained"
-            disableElevation
             size="small"
-            onClick={ handleSave }
-            disabled={ isValidating || isSubmitting || uploading || loading || !user }
+            onClick={ submitForm }
+            disabled={ !isValid || isSubmitting || loading || !user }
           >
             Save
           </Button>
@@ -138,7 +135,7 @@ function PageContent({ submitted, importStatus }) {
       )}
       {!isLoading && (
         <>
-          <FormikContent />
+          <FormikContent setPhotoFile={ setPhotoFile } />
           {dialogOpen && (
             <Dialog open={ dialogOpen } onClose={ handleDialogClose } aria-labelledby="alert-dialog-title">
               <DialogTitle id="alert-dialog-title">Discard unsaved changes?</DialogTitle>
@@ -161,7 +158,8 @@ function PageContent({ submitted, importStatus }) {
 
 PageContent.propTypes = {
   submitted: PropTypes.bool.isRequired,
-  importStatus: PropTypes.string.isRequired
+  importStatus: PropTypes.string.isRequired,
+  setPhotoFile: PropTypes.func.isRequired
 };
 
 /**
@@ -177,6 +175,7 @@ function AddRecipe() {
   const [importStatus, setImportStatus] = useState(IMPORT_STATUSES.UNFETCHED);
   const [submitted, setSubmitted] = useState(false);
   const [initialValues, setInitialValues] = useState(INITIAL_VALUES);
+  const [photoFile, setPhotoFile] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !loading && !user) {
@@ -186,6 +185,10 @@ function AddRecipe() {
 
   useEffect(() => {
     setImportStatus(importUrl ? IMPORT_STATUSES.UNFETCHED : IMPORT_STATUSES.NONE);
+
+    if (!importUrl) {
+      setInitialValues(INITIAL_VALUES);
+    }
   }, [importUrl]);
 
   /**
@@ -222,13 +225,42 @@ function AddRecipe() {
     }
   }, [user, importUrl, importStatus, enqueueSnackbar, closeSnackbar]);
 
+  const uploadImage = useCallback(
+    async (file) => {
+      const uploadingKey = enqueueSnackbar("Uploading photo");
+      try {
+        const compressed = await compressImage(file);
+        const uploaded = await upload(compressed, { folder: "recipes" });
+        const data = await uploaded.json();
+
+        closeSnackbar(uploadingKey);
+        enqueueSnackbar("Upload success!", { variant: "success" });
+
+        return data.secure_url;
+      } catch (error) {
+        enqueueSnackbar("Upload failed. Try again!", { variant: "error" });
+
+        console.log(error);
+        return "";
+      }
+    },
+    [closeSnackbar, enqueueSnackbar]
+  );
+
   const handleSubmit = useCallback(
-    async (values) => {
+    async (values, { setSubmitting }) => {
       const savingKey = enqueueSnackbar("Saving...", { persist: true });
+
+      let photoUrl = values.photo;
+      if (photoFile) {
+        console.log("photoFile", photoFile);
+        photoUrl = await uploadImage(photoFile);
+      }
 
       try {
         const payload = {
           ...values,
+          photo: photoUrl,
           author: {
             id: user.user_id,
             name: user.name,
@@ -252,9 +284,10 @@ function AddRecipe() {
         const message = await getErrorMessage(error);
         closeSnackbar(savingKey);
         enqueueSnackbar(message, { variant: "error" });
+        setSubmitting(false);
       }
     },
-    [user, enqueueSnackbar, closeSnackbar, router]
+    [enqueueSnackbar, uploadImage, user, closeSnackbar, router, photoFile]
   );
 
   return (
@@ -264,10 +297,9 @@ function AddRecipe() {
       validationSchema={ RECIPE_SCHEMA }
       validateOnBlur={ false }
       validateOnChange={ false }
-      initialStatus={ INITIAL_STATUS }
       enableReinitialize
     >
-      {() => <PageContent submitted={ submitted } importStatus={ importStatus } />}
+      {() => <PageContent submitted={ submitted } importStatus={ importStatus } setPhotoFile={ setPhotoFile } />}
     </Formik>
   );
 }

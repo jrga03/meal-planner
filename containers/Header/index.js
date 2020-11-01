@@ -62,6 +62,16 @@ function DialogComponent({ title, open, type, onClose }) {
 
     setImporting(true);
     router.push(createAddRecipeUrl(url));
+
+    if (router.pathname === "/recipe/add") {
+      onClose()();
+      setImporting(false);
+    } else {
+      setTimeout(() => {
+        onClose()();
+        setImporting(false);
+      }, 5000);
+    }
   };
 
   const handleKeyDown = (event) => {
