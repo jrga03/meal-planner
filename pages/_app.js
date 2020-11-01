@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { SnackbarProvider } from 'notistack';
+import { SnackbarProvider } from "notistack";
 
 import styled, { ThemeProvider } from "styled-components";
 
@@ -64,27 +64,29 @@ function MyApp({ Component, pageProps }) {
   };
 
   return (
-    <StylesProvider injectFirst>
-      <MuiThemeProvider theme={ theme }>
-        <ThemeProvider theme={ theme }>
-          <SnackbarProvider>
-            <PaletteContext.Provider value={ paletteProviderValue }>
-              <UserProvider>
-                <CssBaseline />
-                <Container>
-                  <Head>
-                    <title>Meal Planner</title>
-                    <link rel="manifest" href="manifest.json" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-                  </Head>
-                  <Component { ...pageProps } />
-                </Container>
-              </UserProvider>
-            </PaletteContext.Provider>
-          </SnackbarProvider>
-        </ThemeProvider>
-      </MuiThemeProvider>
-    </StylesProvider>
+    <>
+      <Head>
+        <title>Meal Planner</title>
+        <link rel="manifest" href="manifest.json" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+      </Head>
+      <StylesProvider injectFirst>
+        <MuiThemeProvider theme={ theme }>
+          <ThemeProvider theme={ theme }>
+            <SnackbarProvider>
+              <PaletteContext.Provider value={ paletteProviderValue }>
+                <UserProvider>
+                  <CssBaseline />
+                  <Container>
+                    <Component { ...pageProps } />
+                  </Container>
+                </UserProvider>
+              </PaletteContext.Provider>
+            </SnackbarProvider>
+          </ThemeProvider>
+        </MuiThemeProvider>
+      </StylesProvider>
+    </>
   );
 }
 
