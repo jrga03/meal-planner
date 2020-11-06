@@ -19,7 +19,7 @@ import Popover from "material-ui-popup-state/HoverPopover";
 
 import {
   Container,
-  Spacer,
+  SpacerWidth,
   SpacerGrow,
   ProfileContainer,
   StyledSwitch,
@@ -136,7 +136,7 @@ function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
             )}
           </PopupState>
         ))}
-        <Spacer $amount={ 4 } />
+        <SpacerWidth $amount={ 4 } />
         <FormControlLabel
           control={ <StyledSwitch checked={ isDark } onChange={ handleToggle(!isDark) } name="isDark" /> }
           label="Dark"

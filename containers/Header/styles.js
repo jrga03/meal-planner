@@ -46,7 +46,7 @@ export const SpacerGrow = styled.div`
   flex-grow: 1;
 `;
 
-export const Spacer = styled.div`
+export const SpacerWidth = styled.div`
   width: ${({ theme, $amount }) => theme.spacing($amount || 1)}px;
 `;
 
