@@ -15,7 +15,7 @@ import { usePreventRouteChangeIf } from "utils/hooks";
 import { UserContext } from "utils/user";
 import { createLoginUrl, createApiImportRecipeUrl } from "utils/urlHelper";
 import { compressImage } from "utils/fileHelper";
-import { upload } from "utils/cloudinary";
+import { upload, isCloudinaryDomain } from "utils/cloudinary";
 import Fetch, { getErrorMessage } from "utils/request";
 
 // Components
@@ -37,7 +37,7 @@ const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
 function PageContent({ submitted, importStatus, setPhotoFile }) {
   const { user, loading } = useContext(UserContext);
   const router = useRouter();
-  const { submitForm, dirty, isSubmitting, isValid } = useFormikContext();
+  const { submitForm, dirty, isSubmitting } = useFormikContext();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [discardConfirmed, setDiscardConfirmed] = useState(false);
@@ -109,7 +109,7 @@ function PageContent({ submitted, importStatus, setPhotoFile }) {
             variant="contained"
             size="small"
             onClick={ submitForm }
-            disabled={ !isValid || isSubmitting || loading || !user }
+            disabled={ isSubmitting || loading || !user }
           >
             Save
           </Button>
@@ -229,7 +229,10 @@ function AddRecipe() {
     async (file) => {
       const uploadingKey = enqueueSnackbar("Uploading photo");
       try {
-        const compressed = await compressImage(file);
+        let compressed = file;
+        if (typeof file !== "string") {
+          compressed = await compressImage(file);
+        }
         const uploaded = await upload(compressed, { folder: "recipes" });
         const data = await uploaded.json();
 
@@ -247,14 +250,15 @@ function AddRecipe() {
     [closeSnackbar, enqueueSnackbar]
   );
 
+  const { user_id, name, email, given_name, nickname } = user || {};
   const handleSubmit = useCallback(
     async (values, { setSubmitting }) => {
       const savingKey = enqueueSnackbar("Saving...", { persist: true });
 
       let photoUrl = values.photo;
-      if (photoFile) {
-        console.log("photoFile", photoFile);
-        photoUrl = await uploadImage(photoFile);
+      if (photoFile || !isCloudinaryDomain(photoUrl)) {
+        const toUpload = photoUrl || photoFile;
+        photoUrl = await uploadImage(toUpload);
       }
 
       try {
@@ -262,10 +266,10 @@ function AddRecipe() {
           ...values,
           photo: photoUrl,
           author: {
-            id: user.user_id,
-            name: user.name,
-            email: user.email,
-            nickname: user.given_name || user.nickname
+            id: user_id,
+            name,
+            email,
+            nickname: given_name || nickname
           }
         };
 
@@ -287,7 +291,7 @@ function AddRecipe() {
         setSubmitting(false);
       }
     },
-    [enqueueSnackbar, uploadImage, user, closeSnackbar, router, photoFile]
+    [enqueueSnackbar, photoFile, uploadImage, user_id, name, email, given_name, nickname, closeSnackbar, router]
   );
 
   return (
