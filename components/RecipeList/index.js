@@ -60,10 +60,8 @@ function RecipeList({ recipes, loading }) {
         <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
         <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
         <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
-        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
-        <SkeletonRecipeCard variant="rect" width={ itemWidth } height={ itemHeight } />
       </>
-    )
+    );
   }
 
   return recipes.length === 0 ? (
@@ -110,8 +108,12 @@ RecipeList.propTypes = {
       name: PropTypes.string,
       photo: PropTypes.string
     })
-  ).isRequired,
+  ),
   loading: PropTypes.bool.isRequired
+};
+
+RecipeList.defaultProps = {
+  recipes: []
 };
 
 export default RecipeList;
