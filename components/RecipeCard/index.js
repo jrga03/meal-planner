@@ -3,19 +3,23 @@ import PropTypes from "prop-types";
 import Link from "next/link";
 import Typography from "@material-ui/core/Typography";
 
+import { getCloudinaryImageUrl } from "utils/cloudinary";
+
 import { StyledLink, StyledCard, StyledCardMedia, StyledCardContent, RecipeTitle, PhotoPlaceholder } from "./styles";
 
 function RecipeCard({ _id, title, photo, style }) {
-  const thumbnail = photo.replace("/image/upload", "/image/upload/t_media_lib_thumb");
+  const thumbnail = getCloudinaryImageUrl(photo, true);
 
   return (
     <Link href={ `/recipe/${_id}` } passHref>
       <StyledCard style={ style } component={ StyledLink }>
         {thumbnail ? (
-          <StyledCardMedia image={ thumbnail } title={ title } />
+          <StyledCardMedia image={ thumbnail } title={ title } $height={ style.height } />
         ) : (
-          <PhotoPlaceholder>
-            <Typography variant="caption" color="textSecondary">NO PHOTO</Typography>
+          <PhotoPlaceholder $height={ style.height }>
+            <Typography variant="caption" color="textSecondary">
+              NO PHOTO
+            </Typography>
           </PhotoPlaceholder>
         )}
         <StyledCardContent>
@@ -37,6 +41,6 @@ RecipeCard.propTypes = {
 
 RecipeCard.defaultProps = {
   photo: ""
-}
+};
 
 export default RecipeCard;
