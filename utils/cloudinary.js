@@ -7,15 +7,15 @@ const NEXT_PUBLIC_CLOUDINARY_API_SECRET = process.env.NEXT_PUBLIC_CLOUDINARY_API
 /* eslint-enable no-undef */
 
 const DEFAULT_UPLOAD_OPTIONS = {
-  format: "png",
+  format: "webp",
   transformation: "q_auto"
 };
 
 /**
  * Uploads a file using Cloudinary API
  *
- * @param {Object} file - File to be uploaded
- * @param {Object} [options] - Additional options for the upload
+ * @param {object|string} file - File to be uploaded
+ * @param {object} [options] - Additional options for the upload
  */
 export function upload(file, options = {}) {
   const timestamp = Date.now().toString().substring(0, 10);
@@ -53,4 +53,47 @@ function generateSignature(options) {
   const digest = sha1(`${keyValuePairString}${NEXT_PUBLIC_CLOUDINARY_API_SECRET}`);
 
   return digest;
+}
+
+const CLOUDINARY_DOMAIN = "cloudinary.com";
+
+export function isCloudinaryDomain(url) {
+  let res = false;
+  try {
+    const regexp = new RegExp(CLOUDINARY_DOMAIN, "i");
+    const domain = new URL(url).hostname;
+    if (regexp.test(domain)) {
+      res = true;
+    }
+  } catch {
+    // Do nothing
+  }
+
+  return res;
+}
+
+/**
+ * Use cloudinary fetch for external images
+ * @param {string} url - Image URL
+ * @returns {string} Cloudinary URL
+ */
+export function getCloudinaryImageUrl(url = "", isThumbnail = false) {
+  if (url) {
+    let cloudinaryUrl = url;
+    if (!isCloudinaryDomain(url)) {
+      cloudinaryUrl = `https://res.cloudinary.com/what-to-cook/image/fetch/f_auto${
+        isThumbnail ? ",c_limit,h_100,w_150" : ""
+      }/${encodeURIComponent(url)}`;
+      return cloudinaryUrl;
+    }
+
+    cloudinaryUrl = url.replace(
+      "/image/upload",
+      isThumbnail ? "/image/upload/c_thumb,f_auto,h_100,w_150" : "/image/upload/f_auto"
+    );
+
+    return cloudinaryUrl;
+  }
+
+  return url;
 }
