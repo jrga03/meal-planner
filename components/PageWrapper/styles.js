@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Container from "@material-ui/core/Container";
-import { Spacer } from "containers/Header/styles";
+import { SpacerWidth } from "containers/Header/styles";
 
 export const ContentWrapper = styled(Container)`
   flex-grow: 1;
@@ -17,7 +17,7 @@ export const ContentWrapper = styled(Container)`
   }
 `;
 
-export const StyledSpacer = styled(Spacer)`
+export const StyledSpacer = styled(SpacerWidth)`
   display: inline-block;
 `;
 

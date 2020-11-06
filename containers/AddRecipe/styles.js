@@ -9,7 +9,7 @@ import Divider from "@material-ui/core/Divider";
 import Chip from "@material-ui/core/Chip";
 import Skeleton from "@material-ui/lab/Skeleton";
 
-function clampHeight(theme) {
+export function clampHeight(theme) {
   return `clamp(0px, ${100 * (9 / 16)}vw, ${theme.breakpoints.values.sm * (9 / 16)}px)`;
 }
 
@@ -99,6 +99,10 @@ export const IngredientUnitTitle = styled(Typography)`
 export const IngredientInput = styled(FilledInput)`
   padding: 4px;
   font-size: ${ingredientFontSize};
+
+  .MuiFilledInput-input {
+    padding: ${({ theme }) => theme.spacing(1)}px;
+  }
 `;
 
 export const StyledDivider = styled(Divider)`
@@ -116,6 +120,7 @@ export const RecipePhoto = styled(CardMedia)`
 export const Tag = styled(Chip)`
   margin-right: 4px;
   margin-bottom: 4px;
+  text-transform: capitalize;
 `;
 
 export const SkeletonPhoto = styled(Skeleton)`

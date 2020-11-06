@@ -18,15 +18,15 @@ export const StyledCard = styled(Card)`
   margin-bottom: 0;
 `;
 
-const photoWidth = "20%";
+const photoWidth = ({ $height }) => $height * 1.5;
 
 export const StyledCardMedia = styled(CardMedia)`
-  width: ${photoWidth};
+  width: ${photoWidth}px;
   object-fit: cover;
 `;
 
 export const PhotoPlaceholder = styled.div`
-  width: ${photoWidth};
+  width: ${photoWidth}px;
   display: flex;
   align-items: center;
   justify-content: center;
