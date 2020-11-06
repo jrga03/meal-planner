@@ -3,7 +3,7 @@
  */
 
 // Use only common ingredients as main ingredients
-const MAIN_INGREDIENTS = ["beef", "chicken", "fish", "lamb", "pork"];
+const MAIN_INGREDIENTS = ["beef", "chicken", "fish", "lamb", "pork", "chocolate"];
 
 const COMMON_INGREDIENT_UNITS = [
   "teaspoons", "teaspoon", "tsp.", "tsp",
@@ -21,7 +21,8 @@ const COMMON_INGREDIENT_UNITS = [
   "milligrams", "milligrammes", "milligram", "milligramme", "mg.", "mg",
   "grams", "grammes", "gram", "gramme", "g.", "g",
   "kilograms", "kilogrammes", "kilogram", "kilogramme", "kilos", "kilo", "kgs.", "kg.", "kgs", "kg",
-  "pinch", "cloves", "clove", "strips", "strip"
+  "pinch", "cloves", "clove", "strips", "strip",
+  "pieces", "piece", "bundles", "bundle"
 ];
 
 const FRACTION_MAPPING = {
@@ -61,14 +62,20 @@ function parseDuration(duration = "") {
 
   let hours = parseInt(hour, 10) || 0;
 
-  if (year) hours += parseInt(year || 0, 10) * 8760;
-  if (month) hours += parseInt(month || 0, 10) * 730;
-  if (week) hours += parseInt(week || 0, 10) * 168;
-  if (day) hours += parseInt(day || 0, 10) * 24;
+  if (year) hours += (parseInt(year, 10) || 0) * 8760;
+  if (month) hours += (parseInt(month, 10) || 0) * 730;
+  if (week) hours += (parseInt(week, 10) || 0) * 168;
+  if (day) hours += (parseInt(day, 10) || 0) * 24;
+
+  let minutes = parseInt(minute, 10) || 0;
+  if (minutes >= 60) {
+    hours += parseInt(minutes / 60, 10);
+    minutes = minutes % 60;
+  }
 
   return {
     hours,
-    minutes: minute || 0
+    minutes
   };
 }
 
@@ -146,7 +153,9 @@ function parseIngredients(ingredients = []) {
       const withoutNoteParsedAndSplit = withoutNote
         .split(/\s|,/)
         .map((item) => FRACTION_MAPPING[item.charCodeAt()] || item);
-      const unitIndex = withoutNoteParsedAndSplit.findIndex((word) => COMMON_INGREDIENT_UNITS.includes(word));
+      const unitIndex = withoutNoteParsedAndSplit.findIndex((word) =>
+        COMMON_INGREDIENT_UNITS.includes(word.toLowerCase())
+      );
 
       let unit = "";
       let amount = "";
@@ -192,6 +201,10 @@ function getRecipePhoto(imageData) {
 
   if (imageData?.["@type"] === "ImageObject") {
     return imageData?.url || "";
+  }
+
+  if (Array.isArray(imageData) && imageData.length > 0) {
+    return imageData[0];
   }
 
   return "";
