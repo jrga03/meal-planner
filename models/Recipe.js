@@ -5,6 +5,10 @@ const RecipeSchema = new Schema({
   title: String,
   source: String,
   description: String,
+  "prep-hours": String,
+  "prep-minutes": String,
+  "cook-hours": String,
+  "cook-minutes": String,
   ingredients: [
     {
       amount: String,
