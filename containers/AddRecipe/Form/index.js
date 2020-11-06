@@ -67,7 +67,7 @@ function FormikContent({ setPhotoFile }) {
   const fileInputRef = useRef(null);
   const fileCaptureRef = useRef(null);
 
-  const { submitForm, errors, isSubmitting, isValid, values } = useFormikContext();
+  const { submitForm, errors, isSubmitting, values } = useFormikContext();
 
   useEffect(() => {
     const errorKeys = Object.keys(errors);
@@ -193,7 +193,7 @@ function FormikContent({ setPhotoFile }) {
                 size="large"
                 onClick={ submitForm }
                 fullWidth
-                disabled={ !isValid || isSubmitting || loading || !user }
+                disabled={ isSubmitting || loading || !user }
               >
                 Save Recipe
               </Button>
