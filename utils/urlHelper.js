@@ -18,3 +18,15 @@ export function createApiImportRecipeUrl(url) {
   }
   return `/api/recipe/import`;
 }
+
+export function getDomain(url) {
+  if (url) {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return "";
+    }
+  }
+
+  return "";
+}
