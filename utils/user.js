@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
+import useSWR from "swr";
+import Fetch from "utils/request";
 
 export const UserContext = createContext({ user: null, loading: true, logout: () => {} });
 
@@ -9,26 +11,27 @@ export const fetchUser = async () => {
 };
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(useContext(UserContext));
+  const [user, setUser] = useState(useContext(UserContext).user);
+  const [loading, setLoading] = useState(useContext(UserContext).loading);
+  const { data, isValidating } = useSWR("/api/auth/me", Fetch, {
+    onErrorRetry: (error) => {
+      if (error.status === 401) return;
+    }
+  });
 
   useEffect(() => {
-    async function fetchUserData() {
-      const fetchedUser = await fetchUser();
-      setUser({
-        user: fetchedUser,
-        loading: false
-      });
-    }
-
-    fetchUserData();
-  }, []);
+    setUser(data);
+    setLoading(isValidating);
+  }, [data, isValidating]);
 
   function logout() {
-    setUser({ user: null, loading: true });
+    setUser(null);
+    setLoading(true);
   }
 
   const value = {
-    ...user,
+    user,
+    loading,
     logout
   };
 
