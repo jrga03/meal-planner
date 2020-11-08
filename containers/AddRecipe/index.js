@@ -212,7 +212,7 @@ function AddRecipe() {
         enqueueSnackbar("Import success!", { variant: "success", preventDuplicate: true });
         setImportStatus(IMPORT_STATUSES.DONE);
       } catch (error) {
-        const message = await getErrorMessage(error);
+        const message = getErrorMessage(error);
 
         closeSnackbar("fetching");
         enqueueSnackbar(message, { variant: "error" });
@@ -285,7 +285,7 @@ function AddRecipe() {
           router.push(`/recipe/${id}`);
         }
       } catch (error) {
-        const message = await getErrorMessage(error);
+        const message = getErrorMessage(error);
         closeSnackbar(savingKey);
         enqueueSnackbar(message, { variant: "error" });
         setSubmitting(false);
