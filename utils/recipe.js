@@ -240,6 +240,22 @@ export function isRecipeType(object) {
 }
 
 /**
+ * Get duration string for display in UI
+ * @param {string} hr - Hour string
+ * @param {string} min - Minute string
+ * @returns {string}
+ */
+export function getDurationDisplay(hr, min) {
+  const hour = parseInt(hr, 10);
+  const minute = parseInt(min, 10);
+  if (!hour && !minute) return "---";
+  const durations = [];
+  if (hour) durations.push(`${hour} hr`);
+  if (minute) durations.push(`${minute} min`);
+  return durations.join(" ");
+}
+
+/**
  * Extract recipe data
  * @param {object} recipe - Recipe data
  * @returns {object}
