@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import PropTypes from "prop-types";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { Formik, useFormikContext } from "formik";
@@ -253,7 +254,7 @@ function AddRecipe() {
   const { user_id, name, email, given_name, nickname } = user || {};
   const handleSubmit = useCallback(
     async (values, { setSubmitting }) => {
-      const savingKey = enqueueSnackbar("Saving...", { persist: true });
+      const savingKey = enqueueSnackbar("Saving...", { variant: "info", persist: true });
 
       let photoUrl = values.photo;
       if (photoFile || !isCloudinaryDomain(photoUrl)) {
@@ -295,16 +296,21 @@ function AddRecipe() {
   );
 
   return (
-    <Formik
-      initialValues={ initialValues }
-      onSubmit={ handleSubmit }
-      validationSchema={ RECIPE_SCHEMA }
-      validateOnBlur={ false }
-      validateOnChange={ false }
-      enableReinitialize
-    >
-      {() => <PageContent submitted={ submitted } importStatus={ importStatus } setPhotoFile={ setPhotoFile } />}
-    </Formik>
+    <>
+      <Head>
+        <title>Add Recipe</title>
+      </Head>
+      <Formik
+        initialValues={ initialValues }
+        onSubmit={ handleSubmit }
+        validationSchema={ RECIPE_SCHEMA }
+        validateOnBlur={ false }
+        validateOnChange={ false }
+        enableReinitialize
+      >
+        {() => <PageContent submitted={ submitted } importStatus={ importStatus } setPhotoFile={ setPhotoFile } />}
+      </Formik>
+    </>
   );
 }
 
