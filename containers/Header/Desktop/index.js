@@ -87,8 +87,6 @@ function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
     };
   }
 
-  const handleLogout = () => router.push("/api/auth/logout");
-
   return (
     <>
       <Typography variant="h6" noWrap>
@@ -144,47 +142,55 @@ function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
         />
       </Container>
       <SpacerGrow />
-      {auth.loading ? (
+      {!auth.user && auth.loading && (
         <>
           <Skeleton variant="rect" width={ 100 } style={ { marginRight: "8px" } } />
           <Skeleton variant="circle" width={ 40 } height={ 40 } />
         </>
-      ) : auth.user ? (
-        <PopupState variant="popover" popupId="profile">
-          {(popupState) => (
-            <>
-              <ProfileContainer { ...bindHover(popupState) }>
-                <Typography noWrap align="right">
-                  {auth.user.given_name || auth.user.name}
-                </Typography>
-                <Avatar alt={ auth.user.name } src={ auth.user.picture } />
-              </ProfileContainer>
-              <Popover
-                { ...bindPopover(popupState) }
-                anchorOrigin={ {
-                  vertical: "bottom",
-                  horizontal: "center"
-                } }
-                transformOrigin={ {
-                  vertical: "top",
-                  horizontal: "left"
-                } }
-              >
-                <List>
-                  <ListItem button onClick={ handleLogout }>
-                    Logout
-                  </ListItem>
-                </List>
-              </Popover>
-            </>
+      )}
+
+      {!auth.loading && (
+        <>
+          {auth.user && (
+            <PopupState variant="popover" popupId="profile">
+              {(popupState) => (
+                <>
+                  <ProfileContainer { ...bindHover(popupState) }>
+                    <Typography noWrap align="right">
+                      {auth.user.given_name || auth.user.name}
+                    </Typography>
+                    <Avatar alt={ auth.user.name } src={ auth.user.picture } />
+                  </ProfileContainer>
+                  <Popover
+                    { ...bindPopover(popupState) }
+                    anchorOrigin={ {
+                      vertical: "bottom",
+                      horizontal: "center"
+                    } }
+                    transformOrigin={ {
+                      vertical: "top",
+                      horizontal: "left"
+                    } }
+                  >
+                    <List>
+                      <Link href="/api/auth/logout">
+                        <ListItem button>Logout</ListItem>
+                      </Link>
+                    </List>
+                  </Popover>
+                </>
+              )}
+            </PopupState>
           )}
-        </PopupState>
-      ) : (
-        <Button variant="contained" href={ createLoginUrl(router.pathname) }>
-          <StyledTypography $isDark={ isDark } color="textPrimary" variant="button">
-            Login
-          </StyledTypography>
-        </Button>
+
+          {!auth.user && (
+            <Button variant="contained" href={ createLoginUrl(router.pathname) }>
+              <StyledTypography $isDark={ isDark } color="textPrimary" variant="button">
+                Login
+              </StyledTypography>
+            </Button>
+          )}
+        </>
       )}
     </>
   );
