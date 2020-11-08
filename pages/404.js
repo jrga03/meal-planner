@@ -9,7 +9,7 @@ import { LoaderWrapper } from "pages/_app";
  * Not Found Page
  */
 function NotFoundPage() {
-  const handleBack = () => Router.back();
+  const handleBack = () => Router.push("/");
 
   return (
     <LoaderWrapper>
@@ -17,7 +17,7 @@ function NotFoundPage() {
         Page Not Found
       </Typography>
       <Button onClick={ handleBack } variant="contained">
-        Go back
+        Home
       </Button>
     </LoaderWrapper>
   );
