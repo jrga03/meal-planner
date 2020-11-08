@@ -34,7 +34,7 @@ function PageWrapper({ children, withHeader, withFooter, HeaderProps, maxWidth, 
 }
 
 PageWrapper.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   withHeader: PropTypes.bool,
   withFooter: PropTypes.bool,
   HeaderProps: PropTypes.shape({
