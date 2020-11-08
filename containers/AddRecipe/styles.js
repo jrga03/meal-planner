@@ -76,6 +76,10 @@ export const StyledCardContent = styled(CardContent)`
   grid-template-rows: auto auto;
   row-gap: 10px;
   justify-items: center;
+
+  .photo-action {
+    color: white;
+  }
 `;
 
 export const PhotoOverlay = styled.div`
