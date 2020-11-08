@@ -13,7 +13,7 @@ export const fetchUser = async () => {
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(useContext(UserContext).user);
   const [loading, setLoading] = useState(useContext(UserContext).loading);
-  const { data, isValidating } = useSWR("/api/auth/me", Fetch, {
+  const { data, error } = useSWR("/api/auth/me", Fetch, {
     onErrorRetry: (error) => {
       if (error.status === 401) return;
     }
@@ -21,8 +21,8 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     setUser(data);
-    setLoading(isValidating);
-  }, [data, isValidating]);
+    setLoading(!data && !error);
+  }, [data, error]);
 
   function logout() {
     setUser(null);
