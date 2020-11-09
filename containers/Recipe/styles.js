@@ -24,3 +24,9 @@ export const PrepTimeWrapper = styled.section`
 export const PrepTimes = styled.div`
   width: 100%;
 `;
+
+export const TitleWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;

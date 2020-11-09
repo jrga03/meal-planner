@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -7,13 +7,21 @@ import Typography from "@material-ui/core/Typography";
 import Chip from "@material-ui/core/Chip";
 import Divider from "@material-ui/core/Divider";
 import MuiLink from "@material-ui/core/Link";
+import IconButton from "@material-ui/core/IconButton";
+import Popover from "@material-ui/core/Popover";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 import LinkIcon from "@material-ui/icons/Link";
 import { useSnackbar } from "notistack";
+import { usePopupState, bindTrigger, bindPopover } from "material-ui-popup-state/hooks";
+import Skeleton from "@material-ui/lab/Skeleton";
 
 // Components
 import PageWrapper from "components/PageWrapper";
-// import { SkeletonPhoto, SkeletonField, SkeletonDivider } from "containers/AddRecipe/styles";
-import { Content, SpacerHeight, PrepTimeWrapper, PrepTimes } from "containers/Recipe/styles";
+import { SkeletonPhoto } from "containers/AddRecipe/styles";
+import { Content, SpacerHeight, PrepTimeWrapper, PrepTimes, TitleWrapper } from "containers/Recipe/styles";
 
 // Utilities
 import Fetch from "utils/request";
@@ -33,11 +41,18 @@ function Recipe() {
   const router = useRouter();
   const { id } = router.query;
   const { enqueueSnackbar } = useSnackbar();
+  const popupState = usePopupState({ variant: "popover", popupId: "optionsMenu" });
 
   const { data, error } = useSWR(() => (id ? `/api/recipe/${id}` : null), Fetch);
 
+  useEffect(() => {
+    if (popupState.isOpen) {
+      router.prefetch(`/recipe/edit/${id}`);
+    }
+  }, [popupState.isOpen, router, id]);
+
   if (error) {
-    enqueueSnackbar("Recipe page not found.")
+    enqueueSnackbar("Recipe page not found.");
     router.replace("/recipes");
   }
 
@@ -45,9 +60,17 @@ function Recipe() {
 
   return (
     <PageWrapper maxWidth="sm">
-      {/* <>
-        <SkeletonPhoto variant="rect" />
-      </> */}
+      {!data && (
+        <>
+          <SkeletonPhoto variant="rect" />
+          <Content>
+            <Skeleton height={ 56 } width="60%" />
+            <Skeleton height={ 100 } />
+            <Skeleton height={ 1 } />
+            <Skeleton height={ 150 } />
+          </Content>
+        </>
+      )}
       {data && (
         <>
           {data.photo && (
@@ -56,9 +79,39 @@ function Recipe() {
             </picture>
           )}
           <Content>
-            <Typography component="h1" variant="h4">
-              {data.title}
-            </Typography>
+            <TitleWrapper>
+              <Typography component="h1" variant="h4">
+                {data.title}
+              </Typography>
+
+              <IconButton aria-label="options" aria-haspopup="true" { ...bindTrigger(popupState) }>
+                <MoreVertIcon />
+              </IconButton>
+              <Popover
+                { ...bindPopover(popupState) }
+                anchorOrigin={ {
+                  vertical: "center",
+                  horizontal: "right"
+                } }
+                transformOrigin={ {
+                  vertical: "top",
+                  horizontal: "right"
+                } }
+              >
+                <List>
+                  <Link href={ `/recipe/edit/${id}` }>
+                    <ListItem button onClick={ popupState.close }>
+                      <ListItemText>Edit</ListItemText>
+                    </ListItem>
+                  </Link>
+                  {/* TODO: WIP
+                  <ListItem button onClick={ popupState.close }>
+                    <ListItemText primaryTypographyProps={ { color: "error" } }>Delete</ListItemText>
+                  </ListItem>
+                  TODO: WIP */}
+                </List>
+              </Popover>
+            </TitleWrapper>
 
             {data.source && domain && (
               <>
@@ -84,6 +137,7 @@ function Recipe() {
               </>
             )}
 
+            <SpacerHeight $amount={ 2 } />
             <Divider />
             <SpacerHeight />
             <PrepTimeWrapper>
@@ -122,7 +176,7 @@ function Recipe() {
                   </TableHead>
                   <TableBody>
                     {data.ingredients.map((row, index) => (
-                      <TableRow key={ row.ingredient || index } hover>
+                      <TableRow key={ `${row.ingredient}_${index}` } hover>
                         <TableCell>{row.amount}</TableCell>
                         <TableCell>{row.unit}</TableCell>
                         <TableCell>
@@ -154,7 +208,9 @@ function Recipe() {
             <SpacerHeight $amount={ 2 } />
             {data.tags.length > 0 && (
               <>
-                <Typography display="inline" variant="subtitle2">Tags: </Typography>
+                <Typography display="inline" variant="subtitle2">
+                  Tags:{" "}
+                </Typography>
                 {data.tags.map((tag, index) => (
                   <React.Fragment key={ tag }>
                     {index === 0 || ", "}
