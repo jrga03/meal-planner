@@ -41,6 +41,14 @@ function MyApp({ Component, pageProps }) {
   const isDark = paletteType === "dark";
 
   useEffect(() => {
+    // Remove the server-side injected CSS.
+    const jssStyles = document.querySelector("#jss-server-side");
+    if (jssStyles) {
+      jssStyles.parentElement.removeChild(jssStyles);
+    }
+  }, []);
+
+  useEffect(() => {
     const themeType = prefersDarkMode ? "dark" : "light";
     const storedPreference = localStorage.getItem(PALETT_TYPE_KEY);
     setPaletteType(storedPreference || themeType);

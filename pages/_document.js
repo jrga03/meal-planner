@@ -1,17 +1,19 @@
 import React from "react";
-import Document, { Html, Head as DocumentHead, Main, NextScript } from "next/document";
-import Head from "next/head";
+import Document, { Html, Head, Main, NextScript } from "next/document";
 import { ServerStyleSheet } from "styled-components";
+import { ServerStyleSheets } from "@material-ui/styles";
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {
-    const sheet = new ServerStyleSheet();
+    const styledComponentsSheet = new ServerStyleSheet();
+    const materialSheets = new ServerStyleSheets();
     const originalRenderPage = ctx.renderPage;
 
     try {
       ctx.renderPage = () =>
         originalRenderPage({
-          enhanceApp: (App) => (props) => sheet.collectStyles(<App { ...props } />)
+          enhanceApp: (App) => (props) =>
+            styledComponentsSheet.collectStyles(materialSheets.collect(<App { ...props } />))
         });
 
       const initialProps = await Document.getInitialProps(ctx);
@@ -20,19 +22,19 @@ export default class MyDocument extends Document {
         styles: (
           <>
             {initialProps.styles}
-            {sheet.getStyleElement()}
+            {materialSheets.getStyleElement()}
+            {styledComponentsSheet.getStyleElement()}
           </>
         )
       };
     } finally {
-      sheet.seal();
+      styledComponentsSheet.seal();
     }
   }
 
   render() {
     return (
-      <Html>
-        <DocumentHead />
+      <Html lang="en" dir="ltr">
         <Head>
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -59,6 +61,7 @@ export default class MyDocument extends Document {
           <link rel="apple-touch-icon" type="image/png" sizes="256x256" href="images/icons/icon-256x256.png" />
           <link rel="icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
           <link rel="apple-touch-icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
         </Head>
         <body>
           <Main />
