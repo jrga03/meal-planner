@@ -17,8 +17,25 @@ export default auth0.requireAuthentication(async function saveRecipe(req, res) {
       return;
     }
 
-    const recipe = await new Recipe(data).save();
-    res.status(200).json({ id: recipe._id });
+    switch (req.method) {
+      case "POST": {
+        const recipe = await new Recipe(data).save();
+        res.status(200).json({ id: recipe._id });
+        break;
+      }
+      case "PUT": {
+        if (!data.payload || typeof data.payload !== "object") {
+          res.status(406).json({ message: "Request body must be in JSON format" });
+          return;
+        }
+
+        await Recipe.findByIdAndUpdate(data.id, data.payload, { overwrite: true });
+        res.status(200).json({});
+        break;
+      }
+      default:
+        res.status(405).json({ message: "Method Not Allowed" });
+    }
   } catch (error) {
     console.error(error);
     res.status(error.status || 500).json({ message: error.message || "Something went wrong" });
