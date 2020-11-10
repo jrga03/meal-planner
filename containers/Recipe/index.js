@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -28,6 +28,7 @@ import Fetch from "utils/request";
 import { getCloudinaryImageUrl } from "utils/cloudinary";
 import { getDomain } from "utils/urlHelper";
 import { getDurationDisplay } from "utils/recipe";
+import { UserContext } from "utils/user";
 
 // Dynamic components
 const Table = dynamic(() => import("@material-ui/core/Table"));
@@ -38,6 +39,7 @@ const TableRow = dynamic(() => import("@material-ui/core/TableRow"));
 const StyledImg = dynamic(() => import("containers/Recipe/styles").then((mod) => mod.StyledImg));
 
 function Recipe() {
+  const { user } = useContext(UserContext);
   const router = useRouter();
   const { id } = router.query;
   const { enqueueSnackbar } = useSnackbar();
@@ -47,7 +49,7 @@ function Recipe() {
 
   useEffect(() => {
     if (popupState.isOpen) {
-      router.prefetch(`/recipe/edit/${id}`);
+      router.prefetch(`/recipe/${id}/edit`);
     }
   }, [popupState.isOpen, router, id]);
 
@@ -57,6 +59,12 @@ function Recipe() {
   }
 
   const domain = getDomain(data?.source);
+  const isAuthor = data?.author.id === user?.sub;
+
+  const handleDelete = () => {
+    popupState.close();
+    // TODO: Delete endpoint
+  };
 
   return (
     <PageWrapper maxWidth="sm">
@@ -99,16 +107,16 @@ function Recipe() {
                 } }
               >
                 <List>
-                  <Link href={ `/recipe/edit/${id}` }>
+                  <Link href={ `/recipe/${id}/edit` } prefetch={ false }>
                     <ListItem button onClick={ popupState.close }>
                       <ListItemText>Edit</ListItemText>
                     </ListItem>
                   </Link>
-                  {/* TODO: WIP
-                  <ListItem button onClick={ popupState.close }>
-                    <ListItemText primaryTypographyProps={ { color: "error" } }>Delete</ListItemText>
-                  </ListItem>
-                  TODO: WIP */}
+                  {isAuthor && (
+                    <ListItem button onClick={ handleDelete }>
+                      <ListItemText primaryTypographyProps={ { color: "error" } }>Delete</ListItemText>
+                    </ListItem>
+                  )}
                 </List>
               </Popover>
             </TitleWrapper>
