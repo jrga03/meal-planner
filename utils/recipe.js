@@ -22,7 +22,8 @@ const COMMON_INGREDIENT_UNITS = [
   "grams", "grammes", "gram", "gramme", "g.", "g",
   "kilograms", "kilogrammes", "kilogram", "kilogramme", "kilos", "kilo", "kgs.", "kg.", "kgs", "kg",
   "pinch", "cloves", "clove", "strips", "strip",
-  "pieces", "piece", "bundles", "bundle"
+  "pieces", "piece", "bundles", "bundle",
+  "thumbs", "thumb"
 ];
 
 const FRACTION_MAPPING = {
