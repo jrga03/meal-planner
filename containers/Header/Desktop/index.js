@@ -184,7 +184,7 @@ function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
           )}
 
           {!auth.user && (
-            <Button variant="contained" href={ createLoginUrl(router.pathname) }>
+            <Button variant="contained" href={ createLoginUrl(router.asPath) }>
               <StyledTypography $isDark={ isDark } color="textPrimary" variant="button">
                 Login
               </StyledTypography>

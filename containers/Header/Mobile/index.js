@@ -216,7 +216,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode,
                   Logout
                 </Button>
               ) : (
-                <Button fullWidth variant="contained" href={ createLoginUrl(router.pathname) }>
+                <Button fullWidth variant="contained" href={ createLoginUrl(router.asPath) }>
                   Login
                 </Button>
               )}
