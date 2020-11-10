@@ -16,6 +16,7 @@ import CameraIcon from "@material-ui/icons/AddAPhoto";
 import GalleryIcon from "@material-ui/icons/PhotoLibrary";
 import { isMobileOnly, isMobile } from "react-device-detect";
 import { useSnackbar } from "notistack";
+import { useRouter } from "next/router";
 
 // Utilities
 import { fileToBase64Img } from "utils/fileHelper";
@@ -56,6 +57,7 @@ function titleCase(str) {
  * FormikContent
  */
 function FormikContent({ setPhotoFile }) {
+  const router = useRouter();
   const { user, loading } = useContext(UserContext);
 
   const isSmall = useMediaQuery("(max-width:800px)");
@@ -67,7 +69,9 @@ function FormikContent({ setPhotoFile }) {
   const fileInputRef = useRef(null);
   const fileCaptureRef = useRef(null);
 
-  const { submitForm, errors, isSubmitting, values } = useFormikContext();
+  const { submitForm, errors, isSubmitting, values, dirty } = useFormikContext();
+
+  const isEdit = router.pathname === "/recipe/[id]/edit";
 
   useEffect(() => {
     const errorKeys = Object.keys(errors);
@@ -195,7 +199,7 @@ function FormikContent({ setPhotoFile }) {
                 size="large"
                 onClick={ submitForm }
                 fullWidth
-                disabled={ isSubmitting || loading || !user }
+                disabled={ (isEdit && !dirty) || isSubmitting || loading || !user }
               >
                 Save Recipe
               </Button>

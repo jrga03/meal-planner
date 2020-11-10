@@ -10,6 +10,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import { isIOS } from "react-device-detect";
 import { useSnackbar } from "notistack";
+import useSWR, { mutate } from "swr";
 
 // Utilities
 import { usePreventRouteChangeIf } from "utils/hooks";
@@ -35,7 +36,7 @@ const DialogTitle = dynamic(() => import("@material-ui/core/DialogTitle"));
 /**
  * PageContent
  */
-function PageContent({ submitted, importStatus, setPhotoFile }) {
+function PageContent({ submitted, pageStatus, setPhotoFile }) {
   const { user, loading } = useContext(UserContext);
   const router = useRouter();
   const { submitForm, dirty, isSubmitting } = useFormikContext();
@@ -43,6 +44,8 @@ function PageContent({ submitted, importStatus, setPhotoFile }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [discardConfirmed, setDiscardConfirmed] = useState(false);
   const [preventedRouteUrl, setPreventedUrl] = useState(null);
+
+  const isEdit = router.pathname === "/recipe/[id]/edit";
 
   // Prevent route change if form is dirty
   usePreventRouteChangeIf(!submitted && dirty && !discardConfirmed, (url) => {
@@ -90,7 +93,7 @@ function PageContent({ submitted, importStatus, setPhotoFile }) {
   };
 
   const isLoading =
-    loading || !user || importStatus === IMPORT_STATUSES.FETCHING || importStatus === IMPORT_STATUSES.UNFETCHED;
+    loading || !user || pageStatus === IMPORT_STATUSES.FETCHING || pageStatus === IMPORT_STATUSES.UNFETCHED;
 
   return (
     <PageWrapper
@@ -110,7 +113,7 @@ function PageContent({ submitted, importStatus, setPhotoFile }) {
             variant="contained"
             size="small"
             onClick={ submitForm }
-            disabled={ isSubmitting || loading || !user }
+            disabled={ (isEdit && !dirty) || isSubmitting || loading || !user }
           >
             Save
           </Button>
@@ -159,7 +162,7 @@ function PageContent({ submitted, importStatus, setPhotoFile }) {
 
 PageContent.propTypes = {
   submitted: PropTypes.bool.isRequired,
-  importStatus: PropTypes.string.isRequired,
+  pageStatus: PropTypes.string.isRequired,
   setPhotoFile: PropTypes.func.isRequired
 };
 
@@ -171,12 +174,19 @@ function AddRecipe() {
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const { importUrl } = router.query;
+  const {
+    query: { importUrl, id: recipeId },
+    pathname
+  } = router;
+  const isEdit = pathname === "/recipe/[id]/edit";
 
-  const [importStatus, setImportStatus] = useState(IMPORT_STATUSES.UNFETCHED);
+  const { data, error } = useSWR(() => (recipeId ? `/api/recipe/${recipeId}` : null), Fetch);
+
+  const [pageStatus, setPageStatus] = useState(IMPORT_STATUSES.UNFETCHED);
   const [submitted, setSubmitted] = useState(false);
   const [initialValues, setInitialValues] = useState(INITIAL_VALUES);
   const [photoFile, setPhotoFile] = useState(null);
+  const [urlImported, setUrlImported] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !loading && !user) {
@@ -184,47 +194,83 @@ function AddRecipe() {
     }
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    setImportStatus(importUrl ? IMPORT_STATUSES.UNFETCHED : IMPORT_STATUSES.NONE);
-
-    if (!importUrl) {
-      setInitialValues(INITIAL_VALUES);
-    }
-  }, [importUrl]);
-
   /**
    * If `importUrl` exists, get recipe data from URL
    */
   useEffect(() => {
-    if (importUrl && (importStatus === IMPORT_STATUSES.FETCHING || importStatus === IMPORT_STATUSES.UNFETCHED)) {
-      enqueueSnackbar("Fetching recipe data...", {
-        key: "fetching",
-        preventDuplicate: true
-      });
-    }
-
     async function getUrlData() {
-      setImportStatus(IMPORT_STATUSES.FETCHING);
+      setPageStatus(IMPORT_STATUSES.FETCHING);
       try {
         const { data } = await Fetch(createApiImportRecipeUrl(importUrl));
         setInitialValues(data);
 
         closeSnackbar("fetching");
         enqueueSnackbar("Import success!", { variant: "success", preventDuplicate: true });
-        setImportStatus(IMPORT_STATUSES.DONE);
+        setUrlImported(true);
       } catch (error) {
         const message = getErrorMessage(error);
 
         closeSnackbar("fetching");
         enqueueSnackbar(message, { variant: "error" });
-        setImportStatus(IMPORT_STATUSES.NONE);
+        setPageStatus(IMPORT_STATUSES.NONE);
       }
     }
 
-    if (importUrl && user && importStatus === IMPORT_STATUSES.UNFETCHED) {
-      getUrlData();
+    if (!isEdit && importUrl) {
+      if (pageStatus === IMPORT_STATUSES.FETCHING || pageStatus === IMPORT_STATUSES.UNFETCHED) {
+        enqueueSnackbar("Fetching recipe data...", {
+          key: "fetching",
+          preventDuplicate: true
+        });
+      }
+
+      if (user && pageStatus === IMPORT_STATUSES.UNFETCHED) {
+        getUrlData();
+      }
     }
-  }, [user, importUrl, importStatus, enqueueSnackbar, closeSnackbar]);
+  }, [user, importUrl, pageStatus, enqueueSnackbar, closeSnackbar, isEdit]);
+
+  /**
+   * Edit recipe side effects
+   */
+  useEffect(() => {
+    if (isEdit) {
+      if (!data && !error) {
+        setPageStatus(IMPORT_STATUSES.FETCHING);
+        return;
+      }
+
+      if (error) {
+        if (recipeId) {
+          router.replace(`/recipe/${recipeId}`);
+        } else {
+          router.replace("/recipes");
+        }
+        return;
+      }
+
+      if (data) {
+        setInitialValues(data);
+      }
+    }
+  }, [data, error, isEdit, recipeId, router]);
+
+  /**
+   * Page status side effects
+   */
+  useEffect(() => {
+    let status = IMPORT_STATUSES.NONE;
+
+    if (importUrl || isEdit) {
+      status = IMPORT_STATUSES.UNFETCHED;
+    }
+
+    if (data || urlImported) {
+      status = IMPORT_STATUSES.DONE;
+    }
+
+    setPageStatus(status);
+  }, [data, importUrl, isEdit, urlImported]);
 
   const uploadImage = useCallback(
     async (file) => {
@@ -251,7 +297,7 @@ function AddRecipe() {
     [closeSnackbar, enqueueSnackbar]
   );
 
-  const { user_id, name, email, given_name, nickname } = user || {};
+  const { sub, name, email, given_name, nickname } = user || {};
   const handleSubmit = useCallback(
     async (values, { setSubmitting }) => {
       const savingKey = enqueueSnackbar("Saving...", { variant: "info", persist: true });
@@ -265,26 +311,44 @@ function AddRecipe() {
       try {
         const payload = {
           ...values,
-          photo: photoUrl,
-          author: {
-            id: user_id,
-            name,
-            email,
-            nickname: given_name || nickname
-          }
+          photo: photoUrl
         };
 
-        const { id } = await Fetch("/api/recipe/save", {
-          method: "POST",
-          body: JSON.stringify(payload)
-        });
+        let id;
+        if (isEdit) {
+          // eslint-disable-next-line no-unused-vars
+          const { _id, __v, ...restOfPayload } = payload;
+
+          await Fetch("/api/recipe/save", {
+            method: "PUT",
+            body: JSON.stringify({
+              id: recipeId,
+              payload: restOfPayload
+            })
+          });
+
+          id = recipeId;
+          mutate(`/api/recipe/${recipeId}`);
+        } else {
+          const saved = await Fetch("/api/recipe/save", {
+            method: "POST",
+            body: JSON.stringify({
+              ...payload,
+              author: {
+                id: sub,
+                name,
+                email,
+                nickname: given_name || nickname
+              }
+            })
+          });
+          id = saved.id;
+        }
 
         setSubmitted(true);
         closeSnackbar(savingKey);
 
-        if (id) {
-          router.push(`/recipe/${id}`);
-        }
+        router.push(`/recipe/${id}`);
       } catch (error) {
         const message = getErrorMessage(error);
         closeSnackbar(savingKey);
@@ -292,7 +356,20 @@ function AddRecipe() {
         setSubmitting(false);
       }
     },
-    [enqueueSnackbar, photoFile, uploadImage, user_id, name, email, given_name, nickname, closeSnackbar, router]
+    [
+      enqueueSnackbar,
+      photoFile,
+      uploadImage,
+      sub,
+      name,
+      email,
+      given_name,
+      nickname,
+      isEdit,
+      closeSnackbar,
+      router,
+      recipeId
+    ]
   );
 
   return (
@@ -308,7 +385,7 @@ function AddRecipe() {
         validateOnChange={ false }
         enableReinitialize
       >
-        {() => <PageContent submitted={ submitted } importStatus={ importStatus } setPhotoFile={ setPhotoFile } />}
+        {() => <PageContent submitted={ submitted } pageStatus={ pageStatus } setPhotoFile={ setPhotoFile } />}
       </Formik>
     </>
   );
