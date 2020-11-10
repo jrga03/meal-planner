@@ -45,22 +45,22 @@ export default class MyDocument extends Document {
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
           <meta name="msapplication-starturl" content="/" />
 
-          <link rel="icon" type="image/png" sizes="48x48" href="images/icons/icon-48x48.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="48x48" href="images/icons/icon-48x48.png" />
-          <link rel="icon" type="image/png" sizes="72x72" href="images/icons/icon-72x72.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="72x72" href="images/icons/icon-72x72.png" />
-          <link rel="icon" type="image/png" sizes="96x96" href="images/icons/icon-96x96.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="96x96" href="images/icons/icon-96x96.png" />
-          <link rel="icon" type="image/png" sizes="144x144" href="images/icons/icon-144x144.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="144x144" href="images/icons/icon-144x144.png" />
-          <link rel="icon" type="image/png" sizes="168x168" href="images/icons/icon-168x168.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="168x168" href="images/icons/icon-168x168.png" />
-          <link rel="icon" type="image/png" sizes="192x192" href="images/icons/icon-192x192.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="192x192" href="images/icons/icon-192x192.png" />
-          <link rel="icon" type="image/png" sizes="256x256" href="images/icons/icon-256x256.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="256x256" href="images/icons/icon-256x256.png" />
-          <link rel="icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
-          <link rel="apple-touch-icon" type="image/png" sizes="512x512" href="images/icons/icon-512x512.png" />
+          <link rel="icon" type="image/png" sizes="48x48" href="/images/icons/icon-48x48.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="48x48" href="/images/icons/icon-48x48.png" />
+          <link rel="icon" type="image/png" sizes="72x72" href="/images/icons/icon-72x72.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="72x72" href="/images/icons/icon-72x72.png" />
+          <link rel="icon" type="image/png" sizes="96x96" href="/images/icons/icon-96x96.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="96x96" href="/images/icons/icon-96x96.png" />
+          <link rel="icon" type="image/png" sizes="144x144" href="/images/icons/icon-144x144.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="144x144" href="/images/icons/icon-144x144.png" />
+          <link rel="icon" type="image/png" sizes="168x168" href="/images/icons/icon-168x168.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="168x168" href="/images/icons/icon-168x168.png" />
+          <link rel="icon" type="image/png" sizes="192x192" href="/images/icons/icon-192x192.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="192x192" href="/images/icons/icon-192x192.png" />
+          <link rel="icon" type="image/png" sizes="256x256" href="/images/icons/icon-256x256.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="256x256" href="/images/icons/icon-256x256.png" />
+          <link rel="icon" type="image/png" sizes="512x512" href="/images/icons/icon-512x512.png" />
+          <link rel="apple-touch-icon" type="image/png" sizes="512x512" href="/images/icons/icon-512x512.png" />
           <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
         </Head>
         <body>
