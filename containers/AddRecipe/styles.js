@@ -55,12 +55,6 @@ export const PrepNoteGrid = styled.div`
   }
 `;
 
-export const TagsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-`;
-
 export const StyledCardActionArea = styled(CardActionArea)`
   position: relative;
   min-height: ${({ theme }) => clampHeight(theme)};
