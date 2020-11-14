@@ -1,14 +1,17 @@
-import React, { useState, useEffect, forwardRef, memo } from "react";
+import React, { useState, useEffect, forwardRef, memo, useContext } from "react";
 import PropTypes from "prop-types";
 import { FixedSizeList as List, areEqual } from "react-window";
 import Typography from "@material-ui/core/Typography";
 import Fade from "@material-ui/core/Fade";
+import Button from "@material-ui/core/Button";
 import { isMobileOnly } from "react-device-detect";
 
 import { LoaderWrapper } from "pages/_app";
 import RecipeCard from "components/RecipeCard";
 import { RECIPE_CARD_GUTTER_SIZE, SkeletonRecipeCard } from "components/RecipeCard/styles";
 import { useWindowSize, useHeaderHeight } from "utils/hooks";
+
+import { AddRecipeDialogContext } from "containers/AddRecipe/AddRecipeDialog"
 
 const MemoizedRecipeCardItem = memo(RecipeCard, areEqual);
 
@@ -29,6 +32,7 @@ const innerElementType = forwardRef(({ style, ...rest }, ref) => (
  * RecipeList component
  */
 function RecipeList({ recipes, loading }) {
+  const { handleAddRecipe } = useContext(AddRecipeDialogContext);
   const windowSize = useWindowSize();
   const headerHeight = useHeaderHeight();
   const footerHeight = isMobileOnly ? 0 : 52;
@@ -64,13 +68,20 @@ function RecipeList({ recipes, loading }) {
     );
   }
 
-  return recipes.length === 0 ? (
-    <LoaderWrapper>
-      <Typography component="h1" variant="h5">
-        No recipes available
-      </Typography>
-    </LoaderWrapper>
-  ) : (
+  if (recipes.length === 0) {
+    return (
+      <LoaderWrapper>
+        <Typography component="h1" variant="h5" gutterBottom>
+          No recipes available
+        </Typography>
+        <Button variant="contained" onClick={ handleAddRecipe }>
+          Add Recipe
+        </Button>
+      </LoaderWrapper>
+    );
+  }
+
+  return (
     <Fade in>
       <List
         height={ listHeight }
