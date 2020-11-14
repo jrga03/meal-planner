@@ -1,7 +1,7 @@
 import React from "react";
 import { Field, useFormikContext } from "formik";
 
-import { MAIN_INGREDIENT_OPTIONS } from "containers/AddRecipe/constants";
+import { MAIN_CATEGORY_OPTIONS } from "containers/AddRecipe/constants";
 import { GenericTextField } from "containers/AddRecipe/styles";
 
 function MainIngredient() {
@@ -22,7 +22,7 @@ function MainIngredient() {
           { ...field }
         >
           <option value="" />
-          {MAIN_INGREDIENT_OPTIONS.map(({ value, label }) => (
+          {MAIN_CATEGORY_OPTIONS.map(({ value, label }) => (
             <option key={ value } value={ value }>
               {label}
             </option>
