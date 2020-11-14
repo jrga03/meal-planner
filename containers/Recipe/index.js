@@ -7,13 +7,6 @@ import Typography from "@material-ui/core/Typography";
 import Chip from "@material-ui/core/Chip";
 import Divider from "@material-ui/core/Divider";
 import MuiLink from "@material-ui/core/Link";
-import IconButton from "@material-ui/core/IconButton";
-import Popover from "@material-ui/core/Popover";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import LinkIcon from "@material-ui/icons/Link";
 import { useSnackbar } from "notistack";
 import { usePopupState, bindTrigger, bindPopover } from "material-ui-popup-state/hooks";
 import Skeleton from "@material-ui/lab/Skeleton";
@@ -30,6 +23,9 @@ import { getDomain } from "utils/urlHelper";
 import { getDurationDisplay } from "utils/recipe";
 import { UserContext } from "utils/user";
 
+// Constants
+import { PREP_TIME_MAPPING } from "containers/AddRecipe/constants";
+
 // Dynamic components
 const Table = dynamic(() => import("@material-ui/core/Table"));
 const TableBody = dynamic(() => import("@material-ui/core/TableBody"));
@@ -37,6 +33,15 @@ const TableCell = dynamic(() => import("@material-ui/core/TableCell"));
 const TableHead = dynamic(() => import("@material-ui/core/TableHead"));
 const TableRow = dynamic(() => import("@material-ui/core/TableRow"));
 const StyledImg = dynamic(() => import("containers/Recipe/styles").then((mod) => mod.StyledImg));
+const StyledPicture = dynamic(() => import("containers/Recipe/styles").then((mod) => mod.StyledPicture));
+const StyledTableRow = dynamic(() => import("containers/Recipe/styles").then((mod) => mod.StyledTableRow));
+const IconButton = dynamic(() => import("@material-ui/core/IconButton"));
+const Popover = dynamic(() => import("@material-ui/core/Popover"));
+const List = dynamic(() => import("@material-ui/core/List"));
+const ListItem = dynamic(() => import("@material-ui/core/ListItem"));
+const ListItemText = dynamic(() => import("@material-ui/core/ListItemText"));
+const MoreVertIcon = dynamic(() => import("@material-ui/icons/MoreVert"));
+const LinkIcon = dynamic(() => import("@material-ui/icons/Link"));
 
 function Recipe() {
   const { user } = useContext(UserContext);
@@ -63,6 +68,7 @@ function Recipe() {
 
   const handleDelete = () => {
     popupState.close();
+    enqueueSnackbar("Not yet available");
     // TODO: Delete endpoint
   };
 
@@ -82,9 +88,9 @@ function Recipe() {
       {data && (
         <>
           {data.photo && (
-            <picture>
+            <StyledPicture>
               <StyledImg src={ getCloudinaryImageUrl(data.photo) } alt={ data.title } />
-            </picture>
+            </StyledPicture>
           )}
           <Content>
             <TitleWrapper>
@@ -92,33 +98,35 @@ function Recipe() {
                 {data.title}
               </Typography>
 
-              <IconButton aria-label="options" aria-haspopup="true" { ...bindTrigger(popupState) }>
-                <MoreVertIcon />
-              </IconButton>
-              <Popover
-                { ...bindPopover(popupState) }
-                anchorOrigin={ {
-                  vertical: "center",
-                  horizontal: "right"
-                } }
-                transformOrigin={ {
-                  vertical: "top",
-                  horizontal: "right"
-                } }
-              >
-                <List>
-                  <Link href={ `/recipe/${id}/edit` } prefetch={ false }>
-                    <ListItem button onClick={ popupState.close }>
-                      <ListItemText>Edit</ListItemText>
-                    </ListItem>
-                  </Link>
-                  {isAuthor && (
-                    <ListItem button onClick={ handleDelete }>
-                      <ListItemText primaryTypographyProps={ { color: "error" } }>Delete</ListItemText>
-                    </ListItem>
-                  )}
-                </List>
-              </Popover>
+              {isAuthor && (
+                <>
+                  <IconButton aria-label="options" aria-haspopup="true" { ...bindTrigger(popupState) }>
+                    <MoreVertIcon />
+                  </IconButton>
+                  <Popover
+                    { ...bindPopover(popupState) }
+                    anchorOrigin={ {
+                      vertical: "center",
+                      horizontal: "right"
+                    } }
+                    transformOrigin={ {
+                      vertical: "top",
+                      horizontal: "right"
+                    } }
+                  >
+                    <List>
+                      <Link href={ `/recipe/${id}/edit` } prefetch={ false }>
+                        <ListItem button onClick={ popupState.close }>
+                          <ListItemText>Edit</ListItemText>
+                        </ListItem>
+                      </Link>
+                      <ListItem button onClick={ handleDelete }>
+                        <ListItemText primaryTypographyProps={ { color: "error" } }>Delete</ListItemText>
+                      </ListItem>
+                    </List>
+                  </Popover>
+                </>
+              )}
             </TitleWrapper>
 
             {data.source && domain && (
@@ -167,7 +175,7 @@ function Recipe() {
               </PrepTimes>
             </PrepTimeWrapper>
 
-            {data?.ingredients.length > 0 && (
+            {data.ingredients?.length > 0 && (
               <>
                 <SpacerHeight />
                 <Divider />
@@ -184,7 +192,7 @@ function Recipe() {
                   </TableHead>
                   <TableBody>
                     {data.ingredients.map((row, index) => (
-                      <TableRow key={ `${row.ingredient}_${index}` } hover>
+                      <StyledTableRow key={ `${row.ingredient}_${index}` }>
                         <TableCell>{row.amount}</TableCell>
                         <TableCell>{row.unit}</TableCell>
                         <TableCell>
@@ -196,8 +204,41 @@ function Recipe() {
                             </>
                           )}
                         </TableCell>
-                      </TableRow>
+                      </StyledTableRow>
                     ))}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+
+            {data["prep-notes"]?.length > 0 && (
+              <>
+                <SpacerHeight $amount={ 4 } />
+                <Table size="small" aria-label="ingredients table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <Typography component="h3" variant="h6">
+                          <strong>Prep Notes</strong>
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data["prep-notes"]
+                      .sort((a, b) => b.time - a.time)
+                      .map(({ _id, time, note }) => (
+                        <StyledTableRow key={ _id }>
+                          <TableCell>
+                            <Typography gutterBottom>
+                              Start preparing: <strong>{PREP_TIME_MAPPING[time] || ""}</strong>
+                            </Typography>
+                            <Typography variant="body2" gutterBottom>
+                              {note}
+                            </Typography>
+                          </TableCell>
+                        </StyledTableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </>
@@ -223,8 +264,8 @@ function Recipe() {
                   <React.Fragment key={ tag }>
                     {index === 0 || ", "}
                     <Link href={ { pathname: "/recipes", query: { tag } } } prefetch={ false } passHref>
-                      <MuiLink color="textSecondary" display="inline">
-                        {tag}
+                      <MuiLink className="tag" color="textSecondary" display="inline">
+                        {tag.toLowerCase()}
                       </MuiLink>
                     </Link>
                   </React.Fragment>
