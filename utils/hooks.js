@@ -10,7 +10,8 @@ export function useWindowSize() {
   const [width, setWidth] = useState(0);
 
   let handleResize;
-  if (typeof window !== "undefined") {
+  const isClient = typeof window !== "undefined";
+  if (isClient) {
     handleResize = () => {
       setWidth(window.innerWidth);
       setHeight(window.innerHeight);
@@ -18,7 +19,7 @@ export function useWindowSize() {
   }
 
   useLayoutEffect(() => {
-    if (handleResize) {
+    if (isClient && handleResize) {
       handleResize();
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
