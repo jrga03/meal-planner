@@ -17,8 +17,6 @@ const StyledListItem = styled(ListItem)`
   display: list-item;
 `;
 
-export const config = { amp: true };
-
 function PrivacyPolicy() {
   return (
     <Container maxWidth="md" style={ { paddingTop: "8px", paddingBottom: "8px" } }>
