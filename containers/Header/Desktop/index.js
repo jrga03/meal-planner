@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -29,6 +29,8 @@ import {
 import { APP_NAME, NAVIGATION_ITEMS } from "containers/Header/constants";
 
 import { createLoginUrl } from "utils/urlHelper";
+
+import { AddRecipeDialogContext } from "containers/AddRecipe/AddRecipeDialog"
 
 function HeaderSubItem({ primary, href, popupStateClose, onClickAddRecipe }) {
   const router = useRouter();
@@ -68,7 +70,8 @@ HeaderSubItem.propTypes = {
 /**
  * Header for desktop
  */
-function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
+function DesktopHeader({ auth, isDark, setPaletteType }) {
+  const { handleAddRecipe } = useContext(AddRecipeDialogContext);
   const router = useRouter();
 
   const buttonIcons = {
@@ -125,7 +128,7 @@ function DesktopHeader({ auth, isDark, setPaletteType, onClickAddRecipe }) {
                         primary={ primary }
                         href={ href }
                         popupStateClose={ popupState.close }
-                        onClickAddRecipe={ onClickAddRecipe }
+                        onClickAddRecipe={ handleAddRecipe }
                       />
                     ))}
                   </List>

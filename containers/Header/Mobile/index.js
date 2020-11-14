@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -24,6 +24,8 @@ import { DrawerContentContainer, StyledList, StyledDivider, SpacerGrow } from "c
 import { NAVIGATION_ITEMS } from "containers/Header/constants";
 
 import { createLoginUrl } from "utils/urlHelper";
+
+import { AddRecipeDialogContext } from "containers/AddRecipe/AddRecipeDialog"
 
 /**
  * ListItem with Link
@@ -82,7 +84,8 @@ CustomHeader.propTypes = {
 /**
  * Header for mobile devices
  */
-function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode, onClickAddRecipe }) {
+function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode }) {
+  const { handleAddRecipe } = useContext(AddRecipeDialogContext);
   const router = useRouter();
   const [drawerStatus, setDrawerStatus] = useState(false);
 
@@ -104,7 +107,7 @@ function MobileHeader({ auth, isDark, setPaletteType, title, startNode, endNode,
   const handleListItemClick = (href) => () => {
     setDrawerStatus(false);
     if (!href) {
-      onClickAddRecipe();
+      handleAddRecipe();
     }
   };
 
@@ -237,8 +240,7 @@ MobileHeader.propTypes = {
   auth: PropTypes.shape({
     user: PropTypes.object,
     loading: PropTypes.bool
-  }).isRequired,
-  onClickAddRecipe: PropTypes.func.isRequired
+  }).isRequired
 };
 
 MobileHeader.defaultProps = {
