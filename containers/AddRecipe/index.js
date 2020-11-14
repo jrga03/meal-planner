@@ -311,7 +311,13 @@ function AddRecipe() {
       try {
         const payload = {
           ...values,
-          photo: photoUrl
+          photo: photoUrl,
+          author: {
+            id: sub,
+            name,
+            email,
+            nickname: given_name || nickname
+          }
         };
 
         let id;
@@ -319,10 +325,9 @@ function AddRecipe() {
           // eslint-disable-next-line no-unused-vars
           const { _id, __v, ...restOfPayload } = payload;
 
-          await Fetch("/api/recipe/save", {
+          await Fetch(`/api/recipe/${recipeId}`, {
             method: "PUT",
             body: JSON.stringify({
-              id: recipeId,
               payload: restOfPayload
             })
           });
@@ -330,17 +335,9 @@ function AddRecipe() {
           id = recipeId;
           mutate(`/api/recipe/${recipeId}`);
         } else {
-          const saved = await Fetch("/api/recipe/save", {
+          const saved = await Fetch("/api/recipe", {
             method: "POST",
-            body: JSON.stringify({
-              ...payload,
-              author: {
-                id: sub,
-                name,
-                email,
-                nickname: given_name || nickname
-              }
-            })
+            body: JSON.stringify(payload)
           });
           id = saved.id;
         }
