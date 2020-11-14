@@ -11,8 +11,9 @@ export const fetchUser = async () => {
 };
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(useContext(UserContext).user);
-  const [loading, setLoading] = useState(useContext(UserContext).loading);
+  const context = useContext(UserContext);
+  const [user, setUser] = useState(context.user);
+  const [loading, setLoading] = useState(context.loading);
   const { data, error } = useSWR("/api/auth/me", Fetch, {
     onErrorRetry: (error) => {
       if (error.status === 401) return;
