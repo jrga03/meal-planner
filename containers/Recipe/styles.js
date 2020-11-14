@@ -1,14 +1,27 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import TableRow from "@material-ui/core/TableRow";
 import { clampHeight } from "containers/AddRecipe/styles";
 
-export const StyledImg = styled.img`
+const imageDimensions = css`
   width: 100%;
   height: ${({ theme }) => clampHeight(theme)};
+`;
+
+export const StyledPicture = styled.picture`
+  ${imageDimensions}
+`;
+
+export const StyledImg = styled.img`
+  ${imageDimensions}
 `;
 
 export const Content = styled.section`
   width: 100%;
   padding: ${({ theme }) => theme.spacing(2)}px;
+
+  .tag {
+    text-transform: capitalize;
+  }
 `;
 
 export const SpacerHeight = styled.div`
@@ -29,4 +42,10 @@ export const TitleWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+export const StyledTableRow = styled(TableRow)`
+  &:nth-of-type(odd) {
+    background-color: ${({ theme }) => theme.palette.action.hover};
+  }
 `;
