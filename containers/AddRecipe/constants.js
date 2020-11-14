@@ -62,43 +62,47 @@ export const PREP_TIME_OPTIONS = [
   { label: "1 week before", value: 7 }
 ];
 
-export const MAIN_INGREDIENT_OPTIONS = [
-  { label: "Beans", value: "beans" },
-  { label: "Beef", value: "beef" },
-  { label: "Cheese", value: "cheese" },
+export const PREP_TIME_MAPPING = PREP_TIME_OPTIONS.reduce((acc, cur) => {
+  acc[cur.value] = cur.label;
+  return acc;
+}, {});
+
+export const MAIN_CATEGORY_OPTIONS = [
+  { label: "Pork", value: "pork" },
   { label: "Chicken", value: "chicken" },
-  { label: "Chocolate", value: "chocolate" },
-  { label: "Eggs", value: "eggs" },
+  { label: "Beef", value: "beef" },
   { label: "Fish", value: "fish" },
+  { label: "Vegetables", value: "vegetables" },
+  { label: "Pasta", value: "pasta" },
+  { label: "Soup", value: "soup" },
+  { label: "Eggs", value: "eggs" },
+  { label: "Rice & Grains", value: "rice-grains" },
+  { label: "Sauce", value: "sauce" },
+  { label: "Beverage", value: "beverage" },
   { label: "Fruit", value: "fruit" },
   { label: "Lamb", value: "lamb" },
-  { label: "Milk", value: "milk" },
-  { label: "Pasta", value: "pasta" },
-  { label: "Pork", value: "pork" },
-  { label: "Rice & Grains", value: "rice-grains" },
-  { label: "Tomato", value: "tomato" },
-  { label: "Vegetables", value: "vegetables" }
+  { label: "Others", value: "others" }
 ];
 
 export const TAGS_OPTIONS = [
-  { label: "Bread", value: "Bread" },
-  { label: "Breakfast", value: "Breakfast" },
-  { label: "Cheap", value: "Cheap" },
-  { label: "Chicken", value: "Chicken" },
-  { label: "Dessert", value: "Dessert" },
-  { label: "Dinner", value: "Dinner" },
-  { label: "Easy", value: "Easy" },
-  { label: "Freezer", value: "Freezer" },
-  { label: "Freezes well", value: "Freezes well" },
-  { label: "Healthy", value: "Healthy" },
-  { label: "Kid-friendly", value: "Kid-friendly" },
-  { label: "Lunch", value: "Lunch" },
-  { label: "Oven-baked", value: "Oven-baked" },
-  { label: "Pasta", value: "Pasta" },
-  { label: "Quick", value: "Quick" },
-  { label: "Snack", value: "Snack" },
-  { label: "Soup", value: "Soup" },
-  { label: "Steamed", value: "Steamed" }
+  "Bread",
+  "Breakfast",
+  "Cheap",
+  "Chicken",
+  "Dessert",
+  "Dinner",
+  "Easy",
+  "Freezer",
+  "Freezes well",
+  "Healthy",
+  "Kid-friendly",
+  "Lunch",
+  "Oven-baked",
+  "Pasta",
+  "Quick",
+  "Snack",
+  "Soup",
+  "Steamed"
 ];
 
 export const IMPORT_STATUSES = {
@@ -106,4 +110,4 @@ export const IMPORT_STATUSES = {
   UNFETCHED: "unfetched",
   FETCHING: "fetching",
   DONE: "done"
-}
+};
