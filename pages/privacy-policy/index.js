@@ -10,19 +10,23 @@ import ListItem from "@material-ui/core/ListItem";
 
 const StyledList = styled(List)`
   list-style: decimal;
-  margin-left: ${({ theme }) => theme.spacing(5)}px;
+  margin-left: 40px;
 `;
 
 const StyledListItem = styled(ListItem)`
   display: list-item;
 `;
 
+export const config = { amp: true };
+
 function PrivacyPolicy() {
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="md" style={ { paddingTop: "8px", paddingBottom: "8px" } }>
       <Link href="/" passHref>
         <Button variant="contained">Home</Button>
       </Link>
+
+      <div style={ { height: "16px" } } />
 
       <Typography component="h1" variant="h3" align="center" gutterBottom>
         Privacy Policy
