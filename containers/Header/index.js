@@ -47,17 +47,16 @@ function Header(props) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   return (
     <StyledAppBar position="fixed" component="nav">
       <Container maxWidth="md">
         <StyledToolbar disableGutters>
           <AddRecipeDialogProvider>
-            <HeaderComponent
-              isDark={ isDark }
-              setPaletteType={ setPaletteType }
-              auth={ user }
-              { ...props }
-            />
+            <HeaderComponent isDark={ isDark } setPaletteType={ setPaletteType } auth={ user } { ...props } />
           </AddRecipeDialogProvider>
         </StyledToolbar>
       </Container>
