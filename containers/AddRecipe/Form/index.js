@@ -137,7 +137,7 @@ function FormikContent({ setPhotoFile }) {
                   <PhotoIcon />
                 </Avatar>
               )}
-              <Typography variant="button" className="photo-action">
+              <Typography variant="button" className={ photo ? "photo-action" : "" }>
                 {photo ? "Change" : "Add"} Photo
               </Typography>
             </StyledCardContent>
