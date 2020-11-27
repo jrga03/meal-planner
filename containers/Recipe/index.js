@@ -98,35 +98,33 @@ function Recipe() {
                 {data.title}
               </Typography>
 
-              {isAuthor && (
-                <>
-                  <IconButton aria-label="options" aria-haspopup="true" { ...bindTrigger(popupState) }>
-                    <MoreVertIcon />
-                  </IconButton>
-                  <Popover
-                    { ...bindPopover(popupState) }
-                    anchorOrigin={ {
-                      vertical: "center",
-                      horizontal: "right"
-                    } }
-                    transformOrigin={ {
-                      vertical: "top",
-                      horizontal: "right"
-                    } }
-                  >
-                    <List>
-                      <Link href={ `/recipe/${id}/edit` } prefetch={ false }>
-                        <ListItem button onClick={ popupState.close }>
-                          <ListItemText>Edit</ListItemText>
-                        </ListItem>
-                      </Link>
-                      <ListItem button onClick={ handleDelete }>
-                        <ListItemText primaryTypographyProps={ { color: "error" } }>Delete</ListItemText>
-                      </ListItem>
-                    </List>
-                  </Popover>
-                </>
-              )}
+              <IconButton aria-label="options" aria-haspopup="true" { ...bindTrigger(popupState) }>
+                <MoreVertIcon />
+              </IconButton>
+              <Popover
+                { ...bindPopover(popupState) }
+                anchorOrigin={ {
+                  vertical: "center",
+                  horizontal: "right"
+                } }
+                transformOrigin={ {
+                  vertical: "top",
+                  horizontal: "right"
+                } }
+              >
+                <List>
+                  <Link href={ `/recipe/${id}/edit` } prefetch={ false }>
+                    <ListItem button onClick={ popupState.close }>
+                      <ListItemText>Edit</ListItemText>
+                    </ListItem>
+                  </Link>
+                  {isAuthor && (
+                    <ListItem button onClick={ handleDelete }>
+                      <ListItemText primaryTypographyProps={ { color: "error" } }>Delete</ListItemText>
+                    </ListItem>
+                  )}
+                </List>
+              </Popover>
             </TitleWrapper>
 
             {data.source && domain && (
