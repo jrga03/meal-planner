@@ -13,6 +13,7 @@ export const StyledPicture = styled.picture`
 
 export const StyledImg = styled.img`
   ${imageDimensions}
+  object-fit: cover;
 `;
 
 export const Content = styled.section`

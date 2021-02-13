@@ -1,4 +1,5 @@
 import React, { useEffect, useContext } from "react";
+import PropTypes from "prop-types";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -43,14 +44,14 @@ const ListItemText = dynamic(() => import("@material-ui/core/ListItemText"));
 const MoreVertIcon = dynamic(() => import("@material-ui/icons/MoreVert"));
 const LinkIcon = dynamic(() => import("@material-ui/icons/Link"));
 
-function Recipe() {
+function Recipe({ recipe }) {
   const { user } = useContext(UserContext);
   const router = useRouter();
   const { id } = router.query;
   const { enqueueSnackbar } = useSnackbar();
   const popupState = usePopupState({ variant: "popover", popupId: "optionsMenu" });
 
-  const { data, error } = useSWR(() => (id ? `/api/recipe/${id}` : null), Fetch);
+  const { data, error } = useSWR(() => (id ? `/api/recipe/${id}` : null), Fetch, { initialData: recipe });
 
   useEffect(() => {
     if (popupState.isOpen) {
@@ -275,6 +276,14 @@ function Recipe() {
       )}
     </PageWrapper>
   );
+}
+
+Recipe.propTypes = {
+  recipe: PropTypes.object
+}
+
+Recipe.defaultProps = {
+  recipe: undefined
 }
 
 export default Recipe;
