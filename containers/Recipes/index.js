@@ -19,7 +19,7 @@ function Recipes({ recipes }) {
 
   return (
     <AddRecipeDialogProvider>
-      <PageWrapper>
+      <PageWrapper maxWidth={ false }>
         <Wrapper>
           <RecipeList recipes={ data?.recipes } loading={ !data && !error } />
         </Wrapper>
