@@ -3,7 +3,7 @@ import Recipe from "models/Recipe";
 
 connectToDatabase();
 
-export default async function saveRecipe(req, res) {
+export default async function getRecipes(req, res) {
   try {
     // const { start } = req.query; // TODO: for infinite scroll
 

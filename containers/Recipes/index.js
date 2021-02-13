@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import useSWR from "swr";
 
 // Utilities
@@ -13,8 +14,8 @@ import AddRecipeDialogProvider from "containers/AddRecipe/AddRecipeDialog";
 
 import { Wrapper } from "containers/Recipes/styles";
 
-function Recipes() {
-  const { data, error } = useSWR("/api/recipes?hello=world", Fetch);
+function Recipes({ recipes }) {
+  const { data, error } = useSWR("/api/recipes", Fetch, { initialData: { recipes } });
 
   return (
     <AddRecipeDialogProvider>
@@ -26,5 +27,19 @@ function Recipes() {
     </AddRecipeDialogProvider>
   );
 }
+
+Recipes.propTypes = {
+  recipes: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string,
+      name: PropTypes.string,
+      photo: PropTypes.string
+    })
+  )
+};
+
+Recipes.defaultProps = {
+  recipes: []
+};
 
 export default Recipes;
